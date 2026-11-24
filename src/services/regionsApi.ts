@@ -1,4 +1,20 @@
 /** UK Land Registry UKHPI regions (SPARQL). */
+import { USE_MOCK_DATA } from "@/services/mockFlags";
+
+const MOCK_REGIONS: LandRegistryRegion[] = [
+  ["greater-london", "Greater London"],
+  ["greater-manchester", "Greater Manchester"],
+  ["west-midlands", "West Midlands"],
+  ["west-yorkshire", "West Yorkshire"],
+  ["merseyside", "Merseyside"],
+  ["south-west", "South West"],
+  ["south-east", "South East"],
+  ["east-of-england", "East of England"],
+].map(([value, label]) => ({
+  value,
+  label,
+  uri: `http://landregistry.data.gov.uk/id/region/${value}`,
+}));
 
 export type LandRegistryRegion = {
   /** Slug sent to the property API, e.g. `amber-valley`. */
@@ -46,6 +62,7 @@ export function regionSlugFromUri(uri: string): string {
 }
 
 export async function fetchLandRegistryRegions(): Promise<LandRegistryRegion[]> {
+  if (USE_MOCK_DATA) return MOCK_REGIONS;
   const url = `${LAND_REGISTRY_QUERY_URL}?query=${encodeURIComponent(REGIONS_QUERY)}`;
   const res = await fetch(url, {
     method: "GET",

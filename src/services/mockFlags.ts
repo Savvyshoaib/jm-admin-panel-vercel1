@@ -1,6 +1,6 @@
 /**
  * Master switch for FE mock mode.
- * `VITE_USE_MOCK_DATA=true` → local JSON + localStorage mocks (no live HTTP).
+ * `VITE_USE_MOCK_DATA=true` → local demo seed + localStorage mocks (no live HTTP).
  * `VITE_USE_MOCK_DATA=false` (or unset) → real API paths only.
  */
 function envFlagTrue(value: unknown): boolean {

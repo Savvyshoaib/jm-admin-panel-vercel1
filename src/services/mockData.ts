@@ -1,6 +1,6 @@
 /**
  * Single source of truth for FE mock seed data.
- * Edit `src/data/mock-data.json` to change admin creds, inventory, investors, ops seeds.
+ * Edit `src/data/mockDemoSeed.ts` to change admin creds, inventory, investors, and ops seeds.
  * Runtime mutations still persist via localStorage in mock* services.
  */
 import type {
@@ -23,8 +23,14 @@ import type {
   PortfolioOwnership,
   PropertyUnit,
   SignalRule,
+  UkhpiLog,
+  ComingSoonSection,
 } from "@/models";
-import seed from "@/data/mock-data.json";
+import type {
+  CalculatorDefaultsPayload,
+  PropertyInsightPreset,
+} from "@/services/assumptionsApi";
+import { buildMockDemo } from "@/data/mockDemoSeed";
 
 export type MockCredential = {
   email: string;
@@ -58,6 +64,10 @@ export type MockOpsSeed = {
   audit: AuditRecord[];
   rules: SignalRule[];
   folders: Folder[];
+  ukhpiLogs: UkhpiLog[];
+  comingSoon: ComingSoonSection;
+  calculatorDefaults: CalculatorDefaultsPayload;
+  insightPreset: PropertyInsightPreset;
 };
 
 export type MockDataFile = {
@@ -67,8 +77,8 @@ export type MockDataFile = {
   ops: MockOpsSeed;
 };
 
-/** Immutable seed payload from `mock-data.json`. */
-export const mockDataFile = seed as MockDataFile;
+/** Immutable seed payload. Dates are anchored to when this module first loads. */
+export const mockDataFile: MockDataFile = buildMockDemo();
 
 function clone<T>(value: T): T {
   return structuredClone(value);
