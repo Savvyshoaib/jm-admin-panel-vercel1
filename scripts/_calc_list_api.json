@@ -1,0 +1,181 @@
+{
+    "success":  true,
+    "data":  [
+                 {
+                     "id":  1,
+                     "title":  "Calculator",
+                     "slug":  "calculator",
+                     "description":  "Fill out the fields to create a calculator. Once you are done, click the save changes button to update the app.",
+                     "status":  "published",
+                     "isDefault":  true,
+                     "stages":  [
+                                    {
+                                        "id":  "stage_1",
+                                        "type":  "single",
+                                        "title":  "1",
+                                        "options":  [
+                                                        {
+                                                            "id":  "opt_1_1",
+                                                            "label":  "I am buying in my own name",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_1_2",
+                                                            "label":  "I am buying in a company name",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_1_3",
+                                                            "label":  "I have not decided yet",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_1_4",
+                                                            "label":  "I am buying with someone else",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_1_5",
+                                                            "label":  "Buying through a trust",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_1_6",
+                                                            "label":  "Buying through a pension scheme (eg SIPP or SSAS)",
+                                                            "description":  ""
+                                                        }
+                                                    ],
+                                        "question":  "How are you looking to buy the investment property?"
+                                    },
+                                    {
+                                        "id":  "stage_2",
+                                        "type":  "single",
+                                        "title":  "2",
+                                        "options":  [
+                                                        {
+                                                            "id":  "opt_2_1",
+                                                            "label":  "Birmingham City Centre",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_2_2",
+                                                            "label":  "Birmingham outside centre",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_2_3",
+                                                            "label":  "Manchester City Centre",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_2_4",
+                                                            "label":  "Manchester outside centre",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_2_5",
+                                                            "label":  "London City Centre",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_2_6",
+                                                            "label":  "London outside centre",
+                                                            "description":  ""
+                                                        }
+                                                    ],
+                                        "question":  "Which city are you looking to buy in?"
+                                    },
+                                    {
+                                        "id":  "stage_3",
+                                        "type":  "single",
+                                        "title":  "3",
+                                        "options":  [
+                                                        {
+                                                            "id":  "opt_3_1",
+                                                            "label":  "New Build / Off-plan",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_3_2",
+                                                            "label":  "Established (Pre-owned)",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_3_3",
+                                                            "label":  "Leasehold",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_3_4",
+                                                            "label":  "Freehold",
+                                                            "description":  ""
+                                                        }
+                                                    ],
+                                        "question":  "What type of property are you interested in?"
+                                    },
+                                    {
+                                        "id":  "stage_4",
+                                        "type":  "single",
+                                        "title":  "4",
+                                        "options":  [
+                                                        {
+                                                            "id":  "opt_4_1",
+                                                            "label":  "Investment only",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_4_2",
+                                                            "label":  "Residential only",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_4_3",
+                                                            "label":  "Both",
+                                                            "description":  ""
+                                                        }
+                                                    ],
+                                        "question":  "Is this property for investment or residential use?"
+                                    },
+                                    {
+                                        "id":  "stage_5",
+                                        "type":  "single",
+                                        "title":  "5",
+                                        "options":  [
+                                                        {
+                                                            "id":  "opt_5_1",
+                                                            "label":  "1-5 years",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_5_2",
+                                                            "label":  "5-10 years",
+                                                            "description":  ""
+                                                        },
+                                                        {
+                                                            "id":  "opt_5_3",
+                                                            "label":  "10+ years",
+                                                            "description":  ""
+                                                        }
+                                                    ],
+                                        "question":  "What is the intended ownership duration?"
+                                    }
+                                ],
+                     "calculationLogic":  {
+                                              "ltvPct":  75,
+                                              "sdltPct":  5,
+                                              "yieldPct":  5,
+                                              "growthPct":  4,
+                                              "otherFees":  0
+                                          },
+                     "updatedAt":  "2026-09-23T15:27:29.222536Z",
+                     "updatedBy":  "Shoaib"
+                 }
+             ],
+    "errors":  {
+
+               },
+    "message":  "Success.",
+    "paging":  {
+
+               }
+}

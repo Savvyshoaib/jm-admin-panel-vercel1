@@ -1,0 +1,29 @@
+{
+  "id": 1,
+  "title": "Calculator",
+  "slug": "calculator",
+  "description": "Mobile journey — Goal → Route → Capital → Finance.",
+  "status": "published",
+  "isDefault": true,
+  "stages": [
+    {
+      "id": "stage_1",
+      "type": "single",
+      "title": "1",
+      "question": "How are you looking to buy the investment property?",
+      "options": [
+        { "id": "opt_1_1", "label": "I am buying in my own name", "description": "" },
+        { "id": "opt_1_2", "label": "I am buying in a company name", "description": "" }
+      ]
+    }
+  ],
+  "calculationLogic": {
+    "ltvPct": 75,
+    "sdltPct": 5,
+    "yieldPct": 5,
+    "growthPct": 4,
+    "otherFees": 0
+  },
+  "updatedAt": "2026-09-23T15:27:29.222536Z",
+  "updatedBy": "Shoaib"
+}
