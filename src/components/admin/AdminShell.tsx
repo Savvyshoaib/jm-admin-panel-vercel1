@@ -5,6 +5,7 @@ import {
   Activity,
   Building2,
   Calculator,
+  CalendarDays,
   LayoutDashboard,
   Menu,
   MessageSquare,
@@ -17,10 +18,15 @@ import {
   LogOut,
   Landmark,
   Clock,
+  Upload,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  useWorkspaceMode,
+  type WorkspaceMode,
+} from "@/contexts/WorkspaceModeContext";
 import { roleLabel } from "@/permissions/can";
 import type { Resource } from "@/permissions/can";
 import { Button } from "@/components/ui/button";
@@ -34,11 +40,18 @@ import { ThemeSwitcher } from "@/components/admin/ThemeSwitcher";
 
 const SIDEBAR_COLLAPSED_KEY = "jm-admin-sidebar-collapsed";
 
-function SidebarBrand({ collapsed }: { collapsed?: boolean }) {
+function SidebarBrand({
+  collapsed,
+  mode,
+}: {
+  collapsed?: boolean;
+  mode: WorkspaceMode;
+}) {
+  const homeHref = mode === "whatsapp" ? "/whatsapp" : "/";
   if (collapsed) {
     return (
       <Link
-        href="/"
+        href={homeHref}
         aria-label="Mews One home"
         className="flex size-9 items-center justify-center rounded-lg text-primary transition-colors hover:bg-sidebar-accent"
       >
@@ -52,18 +65,20 @@ function SidebarBrand({ collapsed }: { collapsed?: boolean }) {
   }
 
   return (
-    <Link href="/" className="min-w-0 space-y-1" aria-label="Mews One home">
+    <Link href={homeHref} className="min-w-0 space-y-1" aria-label="Mews One home">
       <img
         src={logoMewsOne}
         alt="Mews One — by Joseph Mews Property"
         className="mb-5 h-16 w-auto max-w-[13.5rem] object-contain object-left sm:h-16"
       />
-      <p className="label-eyebrow">Admin</p>
+      <p className="label-eyebrow">
+        {mode === "whatsapp" ? "WhatsApp Worker" : "Admin"}
+      </p>
     </Link>
   );
 }
 
-const navItems: {
+const adminNavItems: {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
@@ -82,65 +97,252 @@ const navItems: {
   { href: "/activity", label: "Activity Log", icon: Activity, resource: "activity" },
 ];
 
+const whatsappNavSections: {
+  label: string;
+  items: {
+    href: string;
+    label: string;
+    icon: typeof LayoutDashboard;
+  }[];
+}[] = [
+  {
+    label: "Workspace",
+    items: [
+      { href: "/whatsapp", label: "Overview", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/whatsapp/leads", label: "Leads", icon: UserCircle2 },
+      { href: "/whatsapp/webinars", label: "Webinars", icon: CalendarDays },
+      { href: "/whatsapp/data", label: "Data", icon: Upload },
+    ],
+  },
+];
+
+function WorkspaceModeToggle({
+  collapsed,
+  mode,
+  onChange,
+}: {
+  collapsed?: boolean;
+  mode: WorkspaceMode;
+  onChange: (mode: WorkspaceMode) => void;
+}) {
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-1 px-1.5 pb-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-8 rounded-xl",
+                mode === "admin" && "bg-primary/15 text-primary ring-1 ring-primary/25",
+              )}
+              aria-label="Admin workspace"
+              aria-pressed={mode === "admin"}
+              onClick={() => onChange("admin")}
+            >
+              <LayoutDashboard className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">Admin</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-8 rounded-xl",
+                mode === "whatsapp" && "bg-primary/15 text-primary ring-1 ring-primary/25",
+              )}
+              aria-label="WhatsApp Worker"
+              aria-pressed={mode === "whatsapp"}
+              onClick={() => onChange("whatsapp")}
+            >
+              <MessageSquare className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">WhatsApp Worker</TooltipContent>
+        </Tooltip>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-2 pb-3">
+      <p className="mb-1.5 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        Workspace
+      </p>
+      <div className="glass inline-flex w-full rounded-xl p-0.5">
+        <button
+          type="button"
+          onClick={() => onChange("admin")}
+          className={cn(
+            "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+            mode === "admin"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          Admin
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("whatsapp")}
+          className={cn(
+            "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+            mode === "whatsapp"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          WhatsApp
+        </button>
+      </div>
+      {mode === "whatsapp" ? (
+        <div className="mt-2 rounded-xl bg-white/4 px-3 py-2 ring-1 ring-white/8">
+          <p className="truncate text-xs font-medium text-foreground">
+            Joseph Mews
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">
+            WhatsApp Sales · Joe
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function NavLinkItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+  collapsed,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  active: boolean;
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
+  const link = (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex items-center rounded-xl text-sm transition-all duration-200",
+        collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
+        active
+          ? "bg-primary/12 text-foreground shadow-[inset_0_1px_0_rgba(255,245,233,0.08)] ring-1 ring-primary/25"
+          : "text-muted-foreground hover:bg-sidebar-accent/80 hover:text-foreground",
+      )}
+    >
+      {active && !collapsed ? (
+        <span
+          aria-hidden
+          className="absolute left-1 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_rgba(252,193,29,0.55)]"
+        />
+      ) : null}
+      <Icon
+        className={cn(
+          "size-4 shrink-0 transition-opacity",
+          active ? "opacity-100 text-primary" : "opacity-75",
+        )}
+      />
+      {!collapsed && <span className="truncate">{label}</span>}
+    </Link>
+  );
+
+  if (!collapsed) return <div key={href}>{link}</div>;
+
+  return (
+    <Tooltip key={href}>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={10}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 function NavLinks({
   onNavigate,
   pathname,
   collapsed,
+  mode,
 }: {
   onNavigate?: () => void;
   pathname: string;
   collapsed?: boolean;
+  mode: WorkspaceMode;
 }) {
   const { canAccessNav } = useAuth();
+
+  if (mode === "whatsapp") {
+    return (
+      <nav className={cn("flex flex-col gap-3", collapsed ? "px-1.5" : "px-2")}>
+        {whatsappNavSections.map((section) => (
+          <div key={section.label} className="space-y-1">
+            {!collapsed ? (
+              <p className="px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                {section.label}
+              </p>
+            ) : null}
+            {section.items.map((item) => {
+              const active =
+                item.href === "/whatsapp"
+                  ? pathname === "/whatsapp"
+                  : pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
+              return (
+                <NavLinkItem
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  icon={item.icon}
+                  active={active}
+                  collapsed={collapsed}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+    );
+  }
+
   return (
     <nav className={cn("flex flex-col gap-1", collapsed ? "px-1.5" : "px-2")}>
-      {navItems
+      {adminNavItems
         .filter((item) => canAccessNav(item.resource))
         .map((item) => {
           const active =
             item.href === "/"
-              ? pathname === "/"
+              ? pathname === "/" || pathname === ""
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
-          const link = (
-            <Link
-              href={item.href}
-              onClick={onNavigate}
-              aria-label={item.label}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "relative flex items-center rounded-xl text-sm transition-all duration-200",
-                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
-                active
-                  ? "bg-primary/12 text-foreground shadow-[inset_0_1px_0_rgba(255,245,233,0.08)] ring-1 ring-primary/25"
-                  : "text-muted-foreground hover:bg-sidebar-accent/80 hover:text-foreground",
-              )}
-            >
-              {active && !collapsed ? (
-                <span
-                  aria-hidden
-                  className="absolute left-1 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_rgba(252,193,29,0.55)]"
-                />
-              ) : null}
-              <Icon
-                className={cn(
-                  "size-4 shrink-0 transition-opacity",
-                  active ? "opacity-100 text-primary" : "opacity-75",
-                )}
-              />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </Link>
-          );
-
-          if (!collapsed) return <div key={item.href}>{link}</div>;
-
           return (
-            <Tooltip key={item.href}>
-              <TooltipTrigger asChild>{link}</TooltipTrigger>
-              <TooltipContent side="right" sideOffset={10}>
-                {item.label}
-              </TooltipContent>
-            </Tooltip>
+            <NavLinkItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              active={active}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
           );
         })}
     </nav>
@@ -157,9 +359,11 @@ function readCollapsed(): boolean {
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, canAccessNav } = useAuth();
+  const { mode, setMode } = useWorkspaceMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const canWhatsapp = canAccessNav("whatsapp_worker");
 
   useEffect(() => {
     void import("@/lib/playableVideo")
@@ -185,6 +389,38 @@ export function AdminShell({ children }: { children: ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
+
+  // Keep mode ↔ URL aligned (deep links, refresh, browser back).
+  useEffect(() => {
+    const onWhatsappRoute =
+      location === "/whatsapp" || location.startsWith("/whatsapp/");
+    if (!canWhatsapp) {
+      if (mode === "whatsapp") setMode("admin");
+      if (onWhatsappRoute) setLocation("/");
+      return;
+    }
+    if (onWhatsappRoute && mode !== "whatsapp") {
+      setMode("whatsapp");
+      return;
+    }
+    if (mode === "whatsapp" && !onWhatsappRoute) {
+      setLocation("/whatsapp");
+    }
+  }, [location, mode, setMode, setLocation, canWhatsapp]);
+
+  const switchMode = (next: WorkspaceMode) => {
+    if (next === mode) return;
+    if (next === "whatsapp" && !canWhatsapp) return;
+    setMode(next);
+    if (next === "whatsapp") {
+      if (!(location === "/whatsapp" || location.startsWith("/whatsapp/"))) {
+        setLocation("/whatsapp");
+      }
+    } else if (location === "/whatsapp" || location.startsWith("/whatsapp/")) {
+      setLocation("/");
+    }
+    setMobileOpen(false);
+  };
 
   const signOut = async () => {
     await logout();
@@ -220,7 +456,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               : "items-center justify-between gap-2 px-4 py-4",
           )}
         >
-          <SidebarBrand collapsed={collapsed} />
+          <SidebarBrand collapsed={collapsed} mode={mode} />
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -245,7 +481,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden py-3">
-          <NavLinks pathname={location} collapsed={collapsed} />
+          {canWhatsapp ? (
+            <WorkspaceModeToggle
+              collapsed={collapsed}
+              mode={mode}
+              onChange={switchMode}
+            />
+          ) : null}
+          <NavLinks
+            pathname={location}
+            collapsed={collapsed}
+            mode={canWhatsapp ? mode : "admin"}
+          />
         </div>
 
         <div
@@ -307,7 +554,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           />
           <aside className="glass-sidebar absolute inset-y-0 left-0 z-10 flex w-[min(18rem,85vw)] flex-col overflow-hidden shadow-2xl">
             <div className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-4">
-              <SidebarBrand />
+              <SidebarBrand mode={mode} />
               <Button
                 variant="ghost"
                 size="icon"
@@ -319,7 +566,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
               </Button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden py-3">
-              <NavLinks pathname={location} onNavigate={() => setMobileOpen(false)} />
+              {canWhatsapp ? (
+                <WorkspaceModeToggle mode={mode} onChange={switchMode} />
+              ) : null}
+              <NavLinks
+                pathname={location}
+                onNavigate={() => setMobileOpen(false)}
+                mode={canWhatsapp ? mode : "admin"}
+              />
             </div>
             <div className="shrink-0 space-y-3 border-t border-white/8 p-4">
               <div className="min-w-0 rounded-xl bg-white/4 px-3 py-2.5 ring-1 ring-white/8">
@@ -355,10 +609,21 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </Button>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm text-muted-foreground">
-              <span className="sm:hidden">Joseph Mews Admin</span>
-              <span className="hidden sm:inline">
-                Operational control for the Joseph Mews Investor Platform
-              </span>
+              {mode === "whatsapp" ? (
+                <>
+                  <span className="sm:hidden">Joe · WhatsApp Sales</span>
+                  <span className="hidden sm:inline">
+                    Joseph Mews · WhatsApp Sales Worker
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="sm:hidden">Joseph Mews Admin</span>
+                  <span className="hidden sm:inline">
+                    Operational control for the Joseph Mews Investor Platform
+                  </span>
+                </>
+              )}
             </p>
           </div>
           <ThemeSwitcher />

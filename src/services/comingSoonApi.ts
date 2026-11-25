@@ -4,8 +4,6 @@ import type { ComingSoonCard, ComingSoonSection } from "@/models";
 import { deleteContentRequest, postContent } from "@/services/contentApi";
 import { endpoints } from "@/services/endpoints";
 import { asRecord, asRecordArray, type ApiEnvelope } from "@/services/mappers";
-import { USE_MOCK_DATA } from "@/services/mockFlags";
-import { mockGetComingSoon, mockSaveComingSoon } from "@/services/mockOps";
 
 function str(value: unknown, fallback = ""): string {
   if (value == null) return fallback;
@@ -72,7 +70,6 @@ function toPayload(section: ComingSoonSection): ComingSoonSection {
 
 /** Read the full section, including unpublished cards. 404 means nothing saved yet. */
 export async function fetchComingSoon(): Promise<ComingSoonSection> {
-  if (USE_MOCK_DATA) return mockGetComingSoon();
   try {
     const raw = await apiRequest<ApiEnvelope<unknown>>(endpoints.explore.comingSoon);
     const data = unwrapData<unknown>(raw);
@@ -90,7 +87,6 @@ export async function fetchComingSoon(): Promise<ComingSoonSection> {
  * Delete content keeps the file on disk.
  */
 export async function uploadComingSoonImage(file: File): Promise<string> {
-  if (USE_MOCK_DATA) return URL.createObjectURL(file);
   const created = await postContent({
     key: `coming-soon-${createClientId()}`,
     title: "Coming soon image",
@@ -121,10 +117,6 @@ export async function saveComingSoon(
   section: ComingSoonSection,
 ): Promise<{ section: ComingSoonSection; message: string }> {
   const body = toPayload(section);
-  if (USE_MOCK_DATA) {
-    const sectionSaved = await mockSaveComingSoon(body);
-    return { section: sectionSaved, message: "Saved." };
-  }
   const raw = await apiRequest<ApiEnvelope<unknown>>(endpoints.explore.comingSoon, {
     method: "PUT",
     body,

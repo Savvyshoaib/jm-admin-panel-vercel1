@@ -119,4 +119,3 @@ Configured for Vercel (`vercel.json`): build with `npm run build`, serve `dist/`
 ## License
 
 MIT
-"# jm-admin-panel-vercel1" 

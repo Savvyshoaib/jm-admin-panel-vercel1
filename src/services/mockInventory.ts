@@ -1,6 +1,6 @@
 /**
  * Local mock inventory for Developments + Properties.
- * Persists to localStorage (`jm-admin-mock-inventory-v3`) so FE testing survives reloads.
+ * Persists to localStorage (`jm-admin-mock-inventory-v2`) so FE testing survives reloads.
  */
 import { createClientId } from "@/lib/ids";
 import { compareSortOrder } from "@/lib/listOrder";
@@ -20,7 +20,7 @@ import {
 
 export { USE_MOCK_INVENTORY };
 
-const STORAGE_KEY = "jm-admin-mock-inventory-v3";
+const STORAGE_KEY = "jm-admin-mock-inventory-v2";
 
 type InventoryDb = {
   developments: Development[];

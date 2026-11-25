@@ -11,7 +11,7 @@ interface ImportMetaEnv {
    * and Vite proxies them to `VITE_API_BASE_URL` (avoids CORS). Default/false = direct.
    */
   readonly VITE_USE_API_PROXY?: string;
-  /** When true, app uses the local demo seed + localStorage mocks. Default/false = live APIs. */
+  /** When true, app uses src/data/mock-data.json + localStorage mocks. Default/false = live APIs. */
   readonly VITE_USE_MOCK_DATA?: string;
 }
 

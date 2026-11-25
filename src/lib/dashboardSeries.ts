@@ -146,6 +146,40 @@ function bucketKeyFor(ms: number, grain: BucketGrain): string {
   return dayKey(d);
 }
 
+/**
+ * Sparkline for point-in-time holdings (no purchase-date history on ownership).
+ * Spreads current holding values across period buckets so the KPI card matches
+ * the other dashboard sparklines without inventing a fake time series API.
+ */
+export function compositionSeries(
+  values: number[],
+  startMs: number,
+  endMs: number,
+  grain: BucketGrain,
+): SeriesPoint[] {
+  let from = startMs;
+  if (startMs <= 0) {
+    from = endMs - 89 * DAY_MS;
+  }
+  const spanDays = Math.max(1, (endMs - from) / DAY_MS);
+  const effectiveGrain: BucketGrain =
+    grain === "daily" && spanDays > 90 ? "weekly" : grain;
+  const points = buildBuckets(from, endMs, effectiveGrain);
+  if (!points.length || !values.length) return points;
+
+  const positive = values
+    .map((v) => Math.max(0, Number(v) || 0))
+    .filter((v) => v > 0);
+  if (!positive.length) return points;
+
+  // Spread book value (£k) across buckets so the sparkline has shape.
+  positive.forEach((v, i) => {
+    const idx = i % points.length;
+    points[idx].count += Math.max(1, Math.round(v / 1000));
+  });
+  return points;
+}
+
 export function bucketDates(
   dates: Array<string | null | undefined>,
   startMs: number,

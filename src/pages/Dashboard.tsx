@@ -2,24 +2,33 @@ import { useEffect, useMemo, useState, Children, type ReactNode } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { AnimatedNumber } from "@/components/admin/AnimatedNumber";
+import {
+  AiInsightsPanel,
+  buildDashboardInsights,
+} from "@/components/admin/AiInsightsPanel";
 import { LoadingBlock } from "@/components/admin/LoadingBlock";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import {
-  DashboardBarChart,
   DashboardChartCard,
+  DashboardSmartChartCard,
   GrainChipGroup,
   PeriodChipGroup,
+  Sparkline,
 } from "@/components/admin/DashboardChartCard";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sparkles } from "lucide-react";
 import {
   agentsByEnquiry,
   bucketDates,
+  compositionSeries,
   periodDelta,
   periodWindow,
   sumOwnershipValue,
   topInvestorsFromOwnership,
   type BucketGrain,
   type PeriodDays,
+  type SeriesPoint,
 } from "@/lib/dashboardSeries";
 import {
   formatCurrency,
@@ -30,12 +39,12 @@ import {
 import { cn } from "@/lib/utils";
 import {
   listActivity,
-  listAgents,
   listEnquiries,
   listInvestors,
   listOwnership,
   listSignals,
 } from "@/services/api";
+import { fetchAgents } from "@/services/usersApi";
 import type {
   ActivityEvent,
   Enquiry,
@@ -177,6 +186,18 @@ function formatActivityRow(
   };
 }
 
+function deltaPct(current: number, prior: number): number | null {
+  if (prior <= 0) return current > 0 ? 100 : current === 0 ? 0 : null;
+  return ((current - prior) / prior) * 100;
+}
+
+function periodHuman(period: PeriodDays): string {
+  if (period === "all") return "full history";
+  if (period === 7) return "7 days";
+  if (period === 90) return "90 days";
+  return "30 days";
+}
+
 function StatCard({
   label,
   value,
@@ -184,6 +205,8 @@ function StatCard({
   hint,
   valueText,
   loading,
+  series,
+  emphasis,
 }: {
   label: string;
   value?: number;
@@ -191,28 +214,43 @@ function StatCard({
   href: string;
   hint?: string;
   loading?: boolean;
+  series?: SeriesPoint[];
+  emphasis?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="glass-panel dash-card block w-full rounded-2xl px-3 py-2.5 hover:border-primary/35 hover:bg-white/6"
+      className={cn(
+        "glass-panel dash-card block w-full rounded-2xl px-3.5 py-3 hover:border-primary/35 hover:bg-white/6",
+        emphasis && "ring-1 ring-primary/20",
+      )}
     >
-      <p className="label-eyebrow text-[10px]">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="label-eyebrow text-[10px]">{label}</p>
+        {emphasis ? (
+          <Badge variant="secondary" className="h-5 px-1.5 text-[9px] font-normal">
+            Focus
+          </Badge>
+        ) : null}
+      </div>
       {loading ? (
-        <Skeleton className="mt-1.5 h-7 w-16" />
+        <Skeleton className="mt-2 h-8 w-20" />
       ) : valueText != null ? (
-        <p className="mt-1 animate-fade-in font-serif text-2xl tabular-nums leading-none text-foreground">
+        <p className="mt-1.5 animate-fade-in font-serif text-2xl tabular-nums leading-none text-foreground sm:text-[1.75rem]">
           {valueText}
         </p>
       ) : (
-        <p className="mt-1 font-serif text-2xl leading-none text-foreground">
+        <p className="mt-1.5 font-serif text-2xl leading-none text-foreground sm:text-[1.75rem]">
           <AnimatedNumber value={value ?? 0} />
         </p>
       )}
       {hint && !loading ? (
-        <p className="mt-1 truncate text-[10px] text-muted-foreground">
-          {hint}
-        </p>
+        <p className="mt-1.5 truncate text-[10px] text-muted-foreground">{hint}</p>
+      ) : null}
+      {series && series.length > 1 && !loading ? (
+        <div className="mt-2 opacity-90">
+          <Sparkline data={series} />
+        </div>
       ) : null}
     </Link>
   );
@@ -276,8 +314,8 @@ export function DashboardPage() {
       .then((items) => finish("ownership", items))
       .catch(() => finish("ownership"));
     // Agents only (skip /admin/users merge — dashboard only needs names).
-    void listAgents()
-      .then((items) => finish("agents", items))
+    void fetchAgents()
+      .then(({ items }) => finish("agents", items))
       .catch(() => finish("agents"));
 
     return () => {
@@ -348,6 +386,18 @@ export function DashboardPage() {
   const activitySeries = useMemo(
     () => bucketDates(activityDates, window.startMs, window.endMs, grain),
     [activityDates, window, grain],
+  );
+  const holdingsSeries = useMemo(
+    () =>
+      compositionSeries(
+        analytics.ownership.map(
+          (o) => Number(o.currentValue) || Number(o.purchaseValue) || 0,
+        ),
+        window.startMs,
+        window.endMs,
+        grain,
+      ),
+    [analytics.ownership, window, grain],
   );
 
   const investorDelta = useMemo(
@@ -427,6 +477,29 @@ export function DashboardPage() {
       .slice(0, 4);
   }, [stats?.highPrioritySignals, analytics.signals]);
 
+  const aiInsights = useMemo(() => {
+    if (!stats) return [];
+    return buildDashboardInsights({
+      investorDeltaPct: deltaPct(investorDelta.current, investorDelta.prior),
+      enquiryDeltaPct: deltaPct(enquiryDelta.current, enquiryDelta.prior),
+      signalDeltaPct: deltaPct(signalDelta.current, signalDelta.prior),
+      openEnquiries: stats.openEnquiries,
+      highSignals: highPrioritySignals.length,
+      totalInvestors: stats.totalInvestors,
+      invitedUsers: stats.invitedUsers,
+      holdingsTotal: portfolioTotal,
+      periodLabel: periodHuman(period),
+    });
+  }, [
+    stats,
+    investorDelta,
+    enquiryDelta,
+    signalDelta,
+    highPrioritySignals.length,
+    portfolioTotal,
+    period,
+  ]);
+
   const holdingsLoading = !loaded.ownership;
   const topInvestorsLoading = !loaded.ownership || !loaded.investors;
   const agentsTableLoading = !loaded.enquiries || !loaded.agents;
@@ -457,9 +530,9 @@ export function DashboardPage() {
 
   return (
     <div className="w-full space-y-5">
-      <div className="animate-fade-up flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 space-y-0.5">
-          <h1 className="font-serif text-2xl tracking-tight text-foreground sm:text-[1.75rem]">
+      <div className="animate-fade-up flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 space-y-1">
+          <h1 className="font-serif text-2xl tracking-tight text-foreground sm:text-[1.85rem]">
             Welcome back, {firstName(user?.name)}
           </h1>
           <p className="text-xs text-muted-foreground sm:text-sm">
@@ -472,12 +545,47 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div className="animate-stagger grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="glass-panel animate-fade-up flex flex-col gap-2 rounded-2xl px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/25">
+            <Sparkles className="size-3.5" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">
+              {aiInsights[0]?.title ?? "Scan the period for material changes"}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+              {aiInsights[0]?.detail ??
+                "Insights update from live CRM metrics in the selected window."}
+            </p>
+          </div>
+        </div>
+        {aiInsights[0]?.href ? (
+          <Link
+            href={aiInsights[0].href}
+            className="shrink-0 text-[11px] font-medium text-primary hover:underline"
+          >
+            {aiInsights[0].actionLabel ?? "Investigate"} →
+          </Link>
+        ) : null}
+      </div>
+
+      <div className="animate-stagger grid w-full grid-cols-2 gap-2.5 lg:grid-cols-4">
         <StatCard
           label="Total investors"
           value={stats.totalInvestors}
           href="/investors"
           hint={investorDelta.label}
+          series={investorSeries}
+          emphasis
+        />
+        <StatCard
+          label="Open enquiries"
+          value={stats.openEnquiries}
+          href="/enquiries"
+          hint={enquiryDelta.label}
+          series={enquirySeries}
+          emphasis
         />
         <StatCard
           label="Intent signals"
@@ -485,18 +593,52 @@ export function DashboardPage() {
           href="/signals"
           hint={signalDelta.label}
           loading={!loaded.signals}
+          series={signalSeries}
+          emphasis
         />
+        <StatCard
+          label="Holdings total"
+          valueText={formatCurrency(portfolioTotal, true)}
+          href="/investors"
+          loading={holdingsLoading}
+          series={holdingsSeries}
+          emphasis
+        />
+      </div>
+
+      <div className="animate-stagger grid w-full gap-3 xl:h-[450px] xl:grid-cols-[minmax(0,1.55fr)_minmax(260px,0.85fr)] xl:items-stretch">
+        {!loaded.investors ? (
+          <DashboardChartCard
+            title="Investor growth"
+            subtitle={investorDelta.label}
+            href="/investors"
+            className="h-[450px] min-h-0"
+          >
+            <ChartSkeleton />
+          </DashboardChartCard>
+        ) : (
+          <DashboardSmartChartCard
+            title="Investor growth"
+            subtitle={investorDelta.label}
+            href="/investors"
+            data={investorSeries}
+            emptyMessage="No investor sign-ups in this period."
+            defaultView="area"
+            className="h-[450px] min-h-0"
+          />
+        )}
+        <AiInsightsPanel
+          insights={aiInsights}
+          className="h-[450px] min-h-0"
+        />
+      </div>
+
+      <div className="animate-stagger grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
         <StatCard
           label="Total agents"
           value={analytics.agents.length}
           href="/users"
           loading={!loaded.agents}
-        />
-        <StatCard
-          label="Open enquiries"
-          value={stats.openEnquiries}
-          href="/enquiries"
-          hint={enquiryDelta.label}
         />
         <StatCard
           label="Active properties"
@@ -509,78 +651,75 @@ export function DashboardPage() {
           href="/developments"
         />
         <StatCard
-          label="Holdings total"
-          valueText={formatCurrency(portfolioTotal, true)}
-          href="/investors"
-          loading={holdingsLoading}
-        />
-        <StatCard
           label="Invited users"
           value={stats.invitedUsers}
           href="/investors?filter=invited"
         />
       </div>
 
-      <div className="animate-stagger grid w-full gap-3 lg:grid-cols-2">
-        <DashboardChartCard
-          title="Investor growth"
-          subtitle={investorDelta.label}
-          href="/investors"
-        >
-          {!loaded.investors ? (
+      <div className="animate-stagger grid w-full gap-3 lg:grid-cols-3">
+        {!loaded.enquiries ? (
+          <DashboardChartCard
+            title="Enquiries received"
+            subtitle={enquiryDelta.label}
+            href="/enquiries"
+            className="min-h-[240px]"
+          >
             <ChartSkeleton />
-          ) : (
-            <DashboardBarChart
-              data={investorSeries}
-              emptyMessage="No investor sign-ups in this period."
-            />
-          )}
-        </DashboardChartCard>
+          </DashboardChartCard>
+        ) : (
+          <DashboardSmartChartCard
+            title="Enquiries received"
+            subtitle={enquiryDelta.label}
+            href="/enquiries"
+            data={enquirySeries}
+            emptyMessage="No enquiries in this period."
+            defaultView="area"
+            className="min-h-[240px]"
+          />
+        )}
 
-        <DashboardChartCard
-          title="Enquiries received"
-          subtitle={enquiryDelta.label}
-          href="/enquiries"
-        >
-          {!loaded.enquiries ? (
+        {!loaded.signals ? (
+          <DashboardChartCard
+            title="Intent signals"
+            subtitle={signalDelta.label}
+            href="/signals"
+            className="min-h-[240px]"
+          >
             <ChartSkeleton />
-          ) : (
-            <DashboardBarChart
-              data={enquirySeries}
-              emptyMessage="No enquiries in this period."
-            />
-          )}
-        </DashboardChartCard>
+          </DashboardChartCard>
+        ) : (
+          <DashboardSmartChartCard
+            title="Intent signals"
+            subtitle={signalDelta.label}
+            href="/signals"
+            data={signalSeries}
+            emptyMessage="No intent signals in this period."
+            defaultView="area"
+            className="min-h-[240px]"
+          />
+        )}
 
-        <DashboardChartCard
-          title="Intent signals"
-          subtitle={signalDelta.label}
-          href="/signals"
-        >
-          {!loaded.signals ? (
+        {activityLoading ? (
+          <DashboardChartCard
+            title="Platform activity"
+            subtitle="Events in selected period"
+            href="/activity"
+            className="min-h-[240px]"
+          >
             <ChartSkeleton />
-          ) : (
-            <DashboardBarChart
-              data={signalSeries}
-              emptyMessage="No intent signals in this period."
-            />
-          )}
-        </DashboardChartCard>
-
-        <DashboardChartCard
-          title="Platform activity"
-          subtitle="Events in selected period"
-          href="/activity"
-        >
-          {activityLoading ? (
-            <ChartSkeleton />
-          ) : (
-            <DashboardBarChart
-              data={activitySeries}
-              emptyMessage="No activity in this period."
-            />
-          )}
-        </DashboardChartCard>
+          </DashboardChartCard>
+        ) : (
+          <DashboardSmartChartCard
+            title="Platform activity"
+            subtitle="Events in selected period"
+            href="/activity"
+            data={activitySeries}
+            emptyMessage="No activity in this period."
+            defaultView="area"
+            className="min-h-[240px]"
+          />
+        )}
       </div>
 
       <div className="animate-stagger grid w-full gap-3 xl:grid-cols-3">
@@ -812,11 +951,11 @@ export function DashboardPage() {
 function ChartSkeleton() {
   const bars = [40, 70, 55, 90, 45, 75, 60, 85];
   return (
-    <div className="flex h-[148px] items-end gap-2 px-1 pb-1 pt-4">
+    <div className="absolute inset-0 flex items-end gap-2 p-3 pt-6 sm:p-4">
       {bars.map((h, i) => (
         <Skeleton
           key={i}
-          className="flex-1 rounded-t-sm rounded-b-none"
+          className="flex-1 rounded-t-md rounded-b-none"
           style={{ height: `${h}%` }}
         />
       ))}

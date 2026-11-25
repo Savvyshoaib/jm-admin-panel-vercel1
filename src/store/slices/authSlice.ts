@@ -77,13 +77,10 @@ function clearLegacyMockStorage() {
   try {
     localStorage.removeItem("jm-admin-mock-db-v2");
     localStorage.removeItem("jm-admin-session-user");
-    // Older mock stores. v3 is the current demo seed.
+    // Old mock store versions (seed now comes from mock-data.json → v2 keys)
     localStorage.removeItem("jm-admin-mock-inventory-v1");
     localStorage.removeItem("jm-admin-mock-investors-v1");
     localStorage.removeItem("jm-admin-mock-ops-v1");
-    localStorage.removeItem("jm-admin-mock-inventory-v2");
-    localStorage.removeItem("jm-admin-mock-investors-v2");
-    localStorage.removeItem("jm-admin-mock-ops-v2");
   } catch {
     /* ignore */
   }

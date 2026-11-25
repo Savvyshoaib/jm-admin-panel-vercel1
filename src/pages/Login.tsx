@@ -47,8 +47,8 @@ export function LoginPage() {
 
   return (
     <AuthShell
-      title="Admin Panel"
-      description="Sign in with your Joseph Mews account to continue."
+      title="Sign in"
+      description="Sign in to your account to continue operating the Joseph Mews Investor Platform."
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-2">

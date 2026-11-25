@@ -20,7 +20,10 @@ export function FilterBar({
     <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex w-full max-w-xl items-center gap-2">
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

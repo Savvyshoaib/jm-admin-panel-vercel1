@@ -29,7 +29,8 @@ export type Resource =
   | "users"
   | "activity"
   | "settings"
-  | "audit";
+  | "audit"
+  | "whatsapp_worker";
 
 export function can(role: Role, action: Action, resource: Resource): boolean {
   if (role === "super_admin") return true;
@@ -63,6 +64,9 @@ export function can(role: Role, action: Action, resource: Resource): boolean {
   if (resource === "developments" || resource === "properties") {
     return action === "view";
   }
+  if (resource === "whatsapp_worker") {
+    return ["view", "create", "edit"].includes(action);
+  }
   if (
     ["investors", "enquiries", "signals", "documents", "payments", "activity", "dashboard", "audit"].includes(
       resource,
@@ -82,9 +86,16 @@ export function canAccessNav(role: Role, resource: Resource): boolean {
 export function canMutate(role: Role, resource: Resource): boolean {
   if (role === "super_admin") return true;
   if (role === "viewer") return false;
-  return ["investors", "enquiries", "signals", "documents", "payments", "activity", "dashboard"].includes(
-    resource,
-  );
+  return [
+    "investors",
+    "enquiries",
+    "signals",
+    "documents",
+    "payments",
+    "activity",
+    "dashboard",
+    "whatsapp_worker",
+  ].includes(resource);
 }
 
 export function roleLabel(role: Role): string {

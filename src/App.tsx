@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { store } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { ensureRegions } from "@/store/slices/regionsSlice";
@@ -38,6 +39,15 @@ import { UsersPage } from "@/pages/Users";
 import { ActivityPage } from "@/pages/Activity";
 import { SettingsPage } from "@/pages/Settings";
 import { ComingSoonPage } from "@/pages/ComingSoon";
+import { WhatsAppOverviewPage } from "@/pages/whatsapp/Overview";
+import { WhatsAppLeadsPage } from "@/pages/whatsapp/Leads";
+import { WhatsAppLeadDetailPage } from "@/pages/whatsapp/LeadDetail";
+import { WhatsAppWebinarsPage } from "@/pages/whatsapp/Webinars";
+import {
+  WhatsAppWebinarDetailPage,
+  WhatsAppWebinarNewPage,
+} from "@/pages/whatsapp/WebinarDetail";
+import { WhatsAppDataPage } from "@/pages/whatsapp/Data";
 
 /** Load Land Registry regions once at app start into Redux. */
 function RegionsBootstrap() {
@@ -217,6 +227,41 @@ function Routes() {
           <SettingsPage />
         </Protected>
       </Route>
+      <Route path="/whatsapp">
+        <Protected>
+          <WhatsAppOverviewPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/leads">
+        <Protected>
+          <WhatsAppLeadsPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/leads/:id">
+        <Protected>
+          <WhatsAppLeadDetailPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/webinars/new">
+        <Protected>
+          <WhatsAppWebinarNewPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/webinars/:id">
+        <Protected>
+          <WhatsAppWebinarDetailPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/webinars">
+        <Protected>
+          <WhatsAppWebinarsPage />
+        </Protected>
+      </Route>
+      <Route path="/whatsapp/data">
+        <Protected>
+          <WhatsAppDataPage />
+        </Protected>
+      </Route>
       <Route>
         <Redirect to="/" />
       </Route>
@@ -230,10 +275,12 @@ export default function App() {
       <RegionsBootstrap />
       <ThemeProvider>
         <AuthProvider>
-          <TooltipProvider>
-            <Routes />
-            <Toaster richColors position="top-right" />
-          </TooltipProvider>
+          <WorkspaceModeProvider>
+            <TooltipProvider>
+              <Routes />
+              <Toaster richColors position="top-right" />
+            </TooltipProvider>
+          </WorkspaceModeProvider>
         </AuthProvider>
       </ThemeProvider>
     </Provider>
