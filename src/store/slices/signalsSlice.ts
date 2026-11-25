@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { IntentSignal } from "@/models";
 import { ApiError } from "@/lib/apiClient";
-import { listSignals } from "@/services/api";
+import { listSignals, updateSignal } from "@/services/api";
 import type { SignalListQuery } from "@/services/signalsApi";
 import { logout, loginThunk, sessionScopeChanged } from "@/store/slices/authSlice";
 import {
@@ -58,12 +58,36 @@ export const ensureSignals = createAsyncThunk<
   },
 );
 
+export const patchSignalThunk = createAsyncThunk<
+  IntentSignal,
+  {
+    id: string;
+    patch: Partial<Pick<IntentSignal, "status" | "agentNotes" | "intentLevel">>;
+  },
+  { rejectValue: string }
+>("signals/patch", async ({ id, patch }, { rejectWithValue }) => {
+  try {
+    return await updateSignal(id, patch);
+  } catch (err) {
+    const message =
+      err instanceof ApiError ? err.message : "Unable to update signal.";
+    return rejectWithValue(message);
+  }
+});
+
 const signalsSlice = createSlice({
   name: "signals",
   initialState,
   reducers: {
     invalidateSignals(state) {
       state.invalidated = true;
+    },
+    upsertSignal(state, action: PayloadAction<IntentSignal>) {
+      const idx = state.items.findIndex(
+        (s) => String(s.id) === String(action.payload.id),
+      );
+      if (idx >= 0) state.items[idx] = { ...state.items[idx], ...action.payload };
+      else state.items.unshift(action.payload);
     },
     resetSignals() {
       return initialState;
@@ -91,9 +115,18 @@ const signalsSlice = createSlice({
         if (action.meta.condition) return;
         state.status = "failed";
         state.error = action.payload ?? "Unable to load signals.";
+      })
+      .addCase(patchSignalThunk.fulfilled, (state, action) => {
+        const idx = state.items.findIndex(
+          (s) => String(s.id) === String(action.payload.id),
+        );
+        if (idx >= 0) {
+          state.items[idx] = { ...state.items[idx], ...action.payload };
+        }
       });
   },
 });
 
-export const { invalidateSignals, resetSignals } = signalsSlice.actions;
+export const { invalidateSignals, resetSignals, upsertSignal } =
+  signalsSlice.actions;
 export default signalsSlice.reducer;

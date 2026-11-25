@@ -30,7 +30,7 @@ import { getMockOpsSeed } from "@/services/mockData";
 import { mockListActivity, mockListDocuments, mockListInvitations, mockListInvestors, mockListSignals } from "@/services/mockInvestors";
 import { mockListDevelopments, mockListProperties } from "@/services/mockInventory";
 
-const STORAGE_KEY = "jm-admin-mock-ops-v4";
+const STORAGE_KEY = "jm-admin-mock-ops-v6";
 
 type OpsDb = {
   users: InternalUser[];

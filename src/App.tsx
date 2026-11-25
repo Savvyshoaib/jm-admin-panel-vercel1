@@ -28,6 +28,7 @@ import { DevelopmentsPage } from "@/pages/Developments";
 import { DevelopmentFormPage } from "@/pages/DevelopmentForm";
 import { EnquiriesPage } from "@/pages/Enquiries";
 import { SignalsPage } from "@/pages/Signals";
+import { SignalsBoardPage } from "@/pages/SignalsBoardPage";
 import { AssumptionsPage } from "@/pages/Assumptions";
 import { JourneyCalculatorPage } from "@/pages/JourneyCalculator";
 import { JourneyCalculator2Page } from "@/pages/JourneyCalculator2";
@@ -48,6 +49,9 @@ import {
   WhatsAppWebinarNewPage,
 } from "@/pages/whatsapp/WebinarDetail";
 import { WhatsAppDataPage } from "@/pages/whatsapp/Data";
+import { MailInboxPage } from "@/pages/mail/Inbox";
+import { MailTemplatesPage } from "@/pages/mail/Templates";
+import { MailCampaignsPage } from "@/pages/mail/Campaigns";
 
 /** Load Land Registry regions once at app start into Redux. */
 function RegionsBootstrap() {
@@ -156,6 +160,11 @@ function Routes() {
           <EnquiriesPage />
         </Protected>
       </Route>
+      <Route path="/signals/board">
+        <Protected>
+          <SignalsBoardPage />
+        </Protected>
+      </Route>
       <Route path="/signals">
         <Protected>
           <SignalsPage />
@@ -220,6 +229,41 @@ function Routes() {
       <Route path="/activity">
         <Protected>
           <ActivityPage />
+        </Protected>
+      </Route>
+      <Route path="/mail/templates">
+        <Protected>
+          <MailTemplatesPage />
+        </Protected>
+      </Route>
+      <Route path="/mail/campaigns">
+        <Protected>
+          <MailCampaignsPage />
+        </Protected>
+      </Route>
+      <Route path="/mail/important">
+        <Protected>
+          <MailInboxPage folder="important" />
+        </Protected>
+      </Route>
+      <Route path="/mail/sent">
+        <Protected>
+          <MailInboxPage folder="sent" />
+        </Protected>
+      </Route>
+      <Route path="/mail/drafts">
+        <Protected>
+          <MailInboxPage folder="drafts" />
+        </Protected>
+      </Route>
+      <Route path="/mail/trash">
+        <Protected>
+          <MailInboxPage folder="trash" />
+        </Protected>
+      </Route>
+      <Route path="/mail">
+        <Protected>
+          <MailInboxPage folder="inbox" />
         </Protected>
       </Route>
       <Route path="/settings">

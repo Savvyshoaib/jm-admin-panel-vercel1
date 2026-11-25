@@ -6,7 +6,10 @@ import {
   Building2,
   Calculator,
   CalendarDays,
+  ChevronDown,
+  Kanban,
   LayoutDashboard,
+  Mail,
   Menu,
   MessageSquare,
   PanelLeft,
@@ -78,19 +81,45 @@ function SidebarBrand({
   );
 }
 
-const adminNavItems: {
+type AdminNavChild = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  /** Exact match only (e.g. dashboard at /signals). */
+  exact?: boolean;
+};
+
+type AdminNavItem = {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   resource: Resource;
-}[] = [
+  children?: AdminNavChild[];
+};
+
+const adminNavItems: AdminNavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, resource: "dashboard" },
   { href: "/investors", label: "Investors", icon: UserCircle2, resource: "investors" },
   { href: "/properties", label: "Properties", icon: Building2, resource: "properties" },
   { href: "/developments", label: "Developments", icon: Landmark, resource: "developments" },
   { href: "/coming-soon", label: "Coming soon", icon: Clock, resource: "content" },
   { href: "/enquiries", label: "Enquiries", icon: MessageSquare, resource: "enquiries" },
-  { href: "/signals", label: "Intent Signals", icon: Radar, resource: "signals" },
+  {
+    href: "/signals",
+    label: "Intent Signals",
+    icon: Radar,
+    resource: "signals",
+    children: [
+      {
+        href: "/signals",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        exact: true,
+      },
+      { href: "/signals/board", label: "Board", icon: Kanban },
+    ],
+  },
+  { href: "/mail", label: "Mail", icon: Mail, resource: "mailing" },
   { href: "/assumptions", label: "Calculations & Assumptions", icon: Calculator, resource: "assumptions" },
   { href: "/calculator", label: "Calculator", icon: Layers, resource: "investor_journey" },
   { href: "/users", label: "Users & Roles", icon: Users, resource: "users" },
@@ -277,6 +306,115 @@ function NavLinkItem({
   );
 }
 
+function pathActive(
+  pathname: string,
+  href: string,
+  exact?: boolean,
+): boolean {
+  if (href === "/") return pathname === "/" || pathname === "";
+  if (exact) return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function NavGroup({
+  item,
+  pathname,
+  collapsed,
+  onNavigate,
+}: {
+  item: AdminNavItem;
+  pathname: string;
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
+  const children = item.children ?? [];
+  const sectionActive = pathActive(pathname, item.href);
+  const [open, setOpen] = useState(sectionActive);
+
+  useEffect(() => {
+    setOpen(sectionActive);
+  }, [sectionActive]);
+
+  if (!children.length) {
+    return (
+      <NavLinkItem
+        href={item.href}
+        label={item.label}
+        icon={item.icon}
+        active={pathActive(pathname, item.href, item.href === "/")}
+        collapsed={collapsed}
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  if (collapsed) {
+    return (
+      <NavLinkItem
+        href={item.href}
+        label={item.label}
+        icon={item.icon}
+        active={sectionActive}
+        collapsed
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-0.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={cn(
+          "relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
+          sectionActive
+            ? "bg-primary/12 text-foreground shadow-[inset_0_1px_0_rgba(255,245,233,0.08)] ring-1 ring-primary/25"
+            : "text-muted-foreground hover:bg-sidebar-accent/80 hover:text-foreground",
+        )}
+      >
+        {sectionActive ? (
+          <span
+            aria-hidden
+            className="absolute left-1 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_rgba(252,193,29,0.55)]"
+          />
+        ) : null}
+        <item.icon
+          className={cn(
+            "size-4 shrink-0",
+            sectionActive ? "text-primary opacity-100" : "opacity-75",
+          )}
+        />
+        <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
+        <ChevronDown
+          className={cn(
+            "size-3.5 shrink-0 opacity-60 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+      {open ? (
+        <div className="ml-3 space-y-0.5 border-l border-white/8 pl-2">
+          {children.map((child) => {
+            const active = pathActive(pathname, child.href, child.exact);
+            return (
+              <NavLinkItem
+                key={child.href}
+                href={child.href}
+                label={child.label}
+                icon={child.icon}
+                active={active}
+                onNavigate={onNavigate}
+              />
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function NavLinks({
   onNavigate,
   pathname,
@@ -328,23 +466,15 @@ function NavLinks({
     <nav className={cn("flex flex-col gap-1", collapsed ? "px-1.5" : "px-2")}>
       {adminNavItems
         .filter((item) => canAccessNav(item.resource))
-        .map((item) => {
-          const active =
-            item.href === "/"
-              ? pathname === "/" || pathname === ""
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
-          return (
-            <NavLinkItem
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              active={active}
-              collapsed={collapsed}
-              onNavigate={onNavigate}
-            />
-          );
-        })}
+        .map((item) => (
+          <NavGroup
+            key={item.href}
+            item={item}
+            pathname={pathname}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+          />
+        ))}
     </nav>
   );
 }

@@ -813,6 +813,109 @@
   scrollbar-width: none;
 }
 
+/*
+ * Branded scrollbars — thin gold thumb, invisible until hover/focus.
+ * Applies to viewport, common overflow utilities, and opt-in `.jm-scroll`.
+ */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+html:hover,
+html:focus-within {
+  scrollbar-color: color-mix(in oklab, var(--primary) 55%, transparent)
+    transparent;
+}
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+html:hover::-webkit-scrollbar-thumb,
+html:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--primary) 50%, transparent);
+}
+
+.jm-scroll,
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-y-scroll,
+.overflow-x-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.jm-scroll:hover,
+.jm-scroll:focus-within,
+.overflow-auto:hover,
+.overflow-auto:focus-within,
+.overflow-y-auto:hover,
+.overflow-y-auto:focus-within,
+.overflow-x-auto:hover,
+.overflow-x-auto:focus-within,
+.overflow-y-scroll:hover,
+.overflow-y-scroll:focus-within,
+.overflow-x-scroll:hover,
+.overflow-x-scroll:focus-within {
+  scrollbar-color: color-mix(in oklab, var(--primary) 55%, transparent)
+    transparent;
+}
+
+.jm-scroll::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-scroll::-webkit-scrollbar,
+.overflow-x-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.jm-scroll::-webkit-scrollbar-track,
+.overflow-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-scroll::-webkit-scrollbar-track,
+.overflow-x-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.jm-scroll::-webkit-scrollbar-thumb,
+.overflow-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-scroll::-webkit-scrollbar-thumb,
+.overflow-x-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+.jm-scroll:hover::-webkit-scrollbar-thumb,
+.jm-scroll:focus-within::-webkit-scrollbar-thumb,
+.overflow-auto:hover::-webkit-scrollbar-thumb,
+.overflow-auto:focus-within::-webkit-scrollbar-thumb,
+.overflow-y-auto:hover::-webkit-scrollbar-thumb,
+.overflow-y-auto:focus-within::-webkit-scrollbar-thumb,
+.overflow-x-auto:hover::-webkit-scrollbar-thumb,
+.overflow-x-auto:focus-within::-webkit-scrollbar-thumb,
+.overflow-y-scroll:hover::-webkit-scrollbar-thumb,
+.overflow-y-scroll:focus-within::-webkit-scrollbar-thumb,
+.overflow-x-scroll:hover::-webkit-scrollbar-thumb,
+.overflow-x-scroll:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--primary) 50%, transparent);
+}
+.jm-scroll::-webkit-scrollbar-thumb:active,
+.overflow-auto::-webkit-scrollbar-thumb:active,
+.overflow-y-auto::-webkit-scrollbar-thumb:active,
+.overflow-x-auto::-webkit-scrollbar-thumb:active,
+.overflow-y-scroll::-webkit-scrollbar-thumb:active,
+.overflow-x-scroll::-webkit-scrollbar-thumb:active {
+  background: color-mix(in oklab, var(--primary) 72%, transparent);
+}
+
 /* Subtle entrance animations */
 @keyframes fade-up {
   from {

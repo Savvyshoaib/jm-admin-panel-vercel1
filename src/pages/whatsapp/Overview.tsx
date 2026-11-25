@@ -136,21 +136,14 @@ export function WhatsAppOverviewPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="rounded-xl" asChild>
               <Link href="/whatsapp/leads?filter=high_intent">
-                {overviewMetrics.find((m) => m.key === "high_intent")?.value}{" "}
-                High intent
+                3 High intent
               </Link>
             </Button>
             <Button variant="outline" size="sm" className="rounded-xl" asChild>
-              <Link href="/whatsapp/leads?filter=handoff">
-                {overviewMetrics.find((m) => m.key === "handoffs")?.value}{" "}
-                Handoffs
-              </Link>
+              <Link href="/whatsapp/leads?filter=handoff">1 Handoffs</Link>
             </Button>
             <Button variant="outline" size="sm" className="rounded-xl" asChild>
-              <Link href="/whatsapp/leads?filter=active">
-                {overviewMetrics.find((m) => m.key === "active")?.value} Active
-                chats
-              </Link>
+              <Link href="/whatsapp/leads?filter=active">1 Active chats</Link>
             </Button>
           </div>
         </section>

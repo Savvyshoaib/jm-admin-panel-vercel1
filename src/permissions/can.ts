@@ -30,7 +30,8 @@ export type Resource =
   | "activity"
   | "settings"
   | "audit"
-  | "whatsapp_worker";
+  | "whatsapp_worker"
+  | "mailing";
 
 export function can(role: Role, action: Action, resource: Resource): boolean {
   if (role === "super_admin") return true;
@@ -67,6 +68,9 @@ export function can(role: Role, action: Action, resource: Resource): boolean {
   if (resource === "whatsapp_worker") {
     return ["view", "create", "edit"].includes(action);
   }
+  if (resource === "mailing") {
+    return ["view", "create", "edit", "delete"].includes(action);
+  }
   if (
     ["investors", "enquiries", "signals", "documents", "payments", "activity", "dashboard", "audit"].includes(
       resource,
@@ -95,6 +99,7 @@ export function canMutate(role: Role, resource: Resource): boolean {
     "activity",
     "dashboard",
     "whatsapp_worker",
+    "mailing",
   ].includes(resource);
 }
 

@@ -77,7 +77,7 @@ function clearLegacyMockStorage() {
   try {
     localStorage.removeItem("jm-admin-mock-db-v2");
     localStorage.removeItem("jm-admin-session-user");
-    // Older mock stores. v4 is the current demo seed.
+    // Older mock stores. v6 is the current rich demo seed.
     localStorage.removeItem("jm-admin-mock-inventory-v1");
     localStorage.removeItem("jm-admin-mock-investors-v1");
     localStorage.removeItem("jm-admin-mock-ops-v1");
@@ -87,6 +87,12 @@ function clearLegacyMockStorage() {
     localStorage.removeItem("jm-admin-mock-inventory-v3");
     localStorage.removeItem("jm-admin-mock-investors-v3");
     localStorage.removeItem("jm-admin-mock-ops-v3");
+    localStorage.removeItem("jm-admin-mock-inventory-v4");
+    localStorage.removeItem("jm-admin-mock-investors-v4");
+    localStorage.removeItem("jm-admin-mock-ops-v4");
+    localStorage.removeItem("jm-admin-mock-inventory-v5");
+    localStorage.removeItem("jm-admin-mock-investors-v5");
+    localStorage.removeItem("jm-admin-mock-ops-v5");
   } catch {
     /* ignore */
   }

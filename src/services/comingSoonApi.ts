@@ -120,11 +120,11 @@ export async function uploadComingSoonImage(file: File): Promise<string> {
 export async function saveComingSoon(
   section: ComingSoonSection,
 ): Promise<{ section: ComingSoonSection; message: string }> {
-  const body = toPayload(section);
   if (USE_MOCK_DATA) {
-    const sectionSaved = await mockSaveComingSoon(body);
+    const sectionSaved = await mockSaveComingSoon(section);
     return { section: sectionSaved, message: "Saved." };
   }
+  const body = toPayload(section);
   const raw = await apiRequest<ApiEnvelope<unknown>>(endpoints.explore.comingSoon, {
     method: "PUT",
     body,

@@ -1,6 +1,6 @@
 /**
  * Local mock Investors (+ ownership, notes, activity, invitations, docs, signals).
- * Persists to localStorage (`jm-admin-mock-investors-v4`) for FE testing across reloads.
+ * Persists to localStorage (`jm-admin-mock-investors-v6`) for FE testing across reloads.
  */
 import { createClientId } from "@/lib/ids";
 import type {
@@ -21,7 +21,7 @@ import {
   mockSetPropertyInvestor,
 } from "@/services/mockInventory";
 
-const STORAGE_KEY = "jm-admin-mock-investors-v4";
+const STORAGE_KEY = "jm-admin-mock-investors-v6";
 
 type InvestorsDb = {
   investors: Investor[];

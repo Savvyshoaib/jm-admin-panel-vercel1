@@ -1,8 +1,4 @@
-/**
- * Mock data for WhatsApp Sales Worker mode — UI-only until worker APIs exist.
- * Event / schedule dates are relative to "now" so Overview, Leads, Webinars,
- * and Data stay populated in the current week.
- */
+/** Mock data for WhatsApp Sales Worker mode — UI-only, no API. */
 
 export type LeadStatus =
   | "New"
@@ -118,21 +114,102 @@ export type ActivityItem = {
 export const WORKER_NAME = "Joe - WhatsApp Sales";
 export const INTERAKT_CONNECTED = true;
 
-function isoDaysAgo(days: number, hour = 10, minute = 20): string {
-  const d = new Date();
-  d.setSeconds(0, 0);
-  d.setHours(hour, minute, 0, 0);
-  d.setDate(d.getDate() - days);
-  return d.toISOString();
-}
+export const overviewMetrics: OverviewMetric[] = [
+  { key: "total", label: "Total leads", value: "8", hint: "In lead pool" },
+  { key: "new", label: "New leads", value: "1", hint: "Awaiting outreach", tone: "up" },
+  { key: "contacted", label: "Contacted", value: "7", hint: "Business-initiated" },
+  {
+    key: "active",
+    label: "Active conversations",
+    value: "1",
+    hint: "Live with Joe",
+  },
+  {
+    key: "response",
+    label: "Response rate",
+    value: "71%",
+    hint: "Of contacted",
+    tone: "up",
+  },
+  {
+    key: "no_response",
+    label: "No response",
+    value: "29%",
+    hint: "Of contacted",
+    tone: "down",
+  },
+  {
+    key: "high_intent",
+    label: "High intent",
+    value: "3",
+    hint: "Ready for rep",
+    tone: "up",
+  },
+  {
+    key: "handoffs",
+    label: "Human handoffs",
+    value: "1",
+    hint: "Automation paused",
+    tone: "down",
+  },
+  { key: "bookings", label: "Bookings", value: "1", hint: "Consultations", tone: "up" },
+  {
+    key: "webinars",
+    label: "Upcoming webinars",
+    value: "12",
+    hint: "Relevance matched",
+  },
+];
 
-function isoDaysAhead(days: number, hour = 18, minute = 0): string {
-  const d = new Date();
-  d.setSeconds(0, 0);
-  d.setHours(hour, minute, 0, 0);
-  d.setDate(d.getDate() + days);
-  return d.toISOString();
-}
+/** Demo chart series — UI-only until WhatsApp worker APIs exist. */
+export const engagementSeries = [
+  { label: "W1", contacted: 4, responses: 2 },
+  { label: "W2", contacted: 6, responses: 4 },
+  { label: "W3", contacted: 5, responses: 3 },
+  { label: "W4", contacted: 7, responses: 5 },
+];
+
+/** Tiny sparkline values for overview KPI cards. */
+export const metricSparks: Record<string, number[]> = {
+  total: [3, 4, 5, 6, 6, 7, 8],
+  new: [0, 1, 0, 2, 1, 0, 1],
+  contacted: [1, 2, 3, 4, 5, 6, 7],
+  active: [0, 1, 1, 0, 1, 1, 1],
+  response: [40, 48, 55, 62, 58, 68, 71],
+  no_response: [60, 52, 45, 38, 42, 32, 29],
+  high_intent: [0, 1, 1, 2, 2, 3, 3],
+  handoffs: [0, 0, 1, 1, 1, 1, 1],
+  bookings: [0, 0, 0, 0, 1, 1, 1],
+  webinars: [4, 6, 7, 8, 9, 11, 12],
+};
+
+export const pipelineByStatus: { status: LeadStatus; count: number }[] = [
+  { status: "Active Conversation", count: 1 },
+  { status: "High Intent", count: 1 },
+  { status: "Qualified", count: 1 },
+  { status: "Human Handoff", count: 1 },
+  { status: "Nurture", count: 1 },
+  { status: "No Response", count: 1 },
+  { status: "Not Contacted", count: 1 },
+  { status: "Opted Out", count: 1 },
+];
+
+export const whatsappActivitySeries = [
+  { label: "Mon", responses: 6, highIntent: 2 },
+  { label: "Tue", responses: 8, highIntent: 3 },
+  { label: "Wed", responses: 5, highIntent: 1 },
+  { label: "Thu", responses: 9, highIntent: 4 },
+  { label: "Fri", responses: 7, highIntent: 3 },
+  { label: "Sat", responses: 4, highIntent: 2 },
+  { label: "Sun", responses: 3, highIntent: 1 },
+];
+
+export const marketInterest = [
+  { market: "UK", pct: 48, count: 42 },
+  { market: "UAE", pct: 32, count: 28 },
+  { market: "UK + UAE", pct: 13, count: 11 },
+  { market: "Undecided", pct: 8, count: 7 },
+];
 
 export const whatsappLeads: WhatsAppLead[] = [
   {
@@ -148,14 +225,14 @@ export const whatsappLeads: WhatsAppLead[] = [
     source: "How to Invest in UK Property",
     assignedRep: "Johnny Conran",
     conversationSummary:
-      "Discussing Birmingham stock and mortgage eligibility ahead of the next UK webinar.",
+      "Discussing Birmingham stock and mortgage eligibility ahead of the September UK webinar.",
     profileNotes:
-      "Interested in Birmingham property. Mortgage-funded. Budget around £250k and expects to invest within four months.",
+      "Interested in Birmingham property. Mortgage-funded. Budget around £250k and expects to invest within four months. Responded positively to UK webinar campaign.",
     stage: "Qualification - budget & location",
     qualificationPct: 65,
     outreachNote: "Entered qualification",
-    lastContactedAt: isoDaysAgo(0, 19, 30),
-    lastResponseAt: isoDaysAgo(0, 20, 1),
+    lastContactedAt: "2026-09-03T19:30:00Z",
+    lastResponseAt: "2026-09-03T20:01:00Z",
     handoffRequested: false,
     whatsappConsent: true,
     optedOut: false,
@@ -176,14 +253,14 @@ export const whatsappLeads: WhatsAppLead[] = [
     source: "Birmingham Investment Opportunities",
     assignedRep: "Johnny Conran",
     conversationSummary:
-      "High intent — requesting an advisor call on Leeds stock within 2 months.",
+      "High intent - requesting an advisor call on Leeds stock within 2 months.",
     profileNotes:
       "Strong interest in Leeds yield stock. Asking for advisor availability this week. Budget flexible around £180k with deposit ready.",
     stage: "Consultation request",
     qualificationPct: 82,
     outreachNote: "Requested advisor call",
-    lastContactedAt: isoDaysAgo(1, 13, 10),
-    lastResponseAt: isoDaysAgo(1, 14, 40),
+    lastContactedAt: "2026-09-04T13:10:00Z",
+    lastResponseAt: "2026-09-04T14:40:00Z",
     handoffRequested: false,
     whatsappConsent: true,
     optedOut: false,
@@ -204,14 +281,14 @@ export const whatsappLeads: WhatsAppLead[] = [
     source: "How to Invest in UK Property",
     assignedRep: "Johnny Conran",
     conversationSummary:
-      "Requested a human advisor — automation paused until resume.",
+      "Requested a human advisor - automation paused until resume.",
     profileNotes:
       "Overseas buyer based in Milan. Prefers speaking with a human about tax and remittance before continuing WhatsApp automation.",
     stage: "Human handoff",
     qualificationPct: 55,
     outreachNote: "Automation paused",
-    lastContactedAt: isoDaysAgo(2, 20, 40),
-    lastResponseAt: isoDaysAgo(2, 21, 12),
+    lastContactedAt: "2026-09-02T20:40:00Z",
+    lastResponseAt: "2026-09-02T21:12:00Z",
     handoffRequested: true,
     whatsappConsent: true,
     optedOut: false,
@@ -232,14 +309,14 @@ export const whatsappLeads: WhatsAppLead[] = [
     source: "How to Invest in UK Property",
     assignedRep: "Johnny Conran",
     conversationSummary:
-      "Qualified cash buyer for Birmingham — consultation booked.",
+      "Qualified cash buyer for Birmingham - consultation booked.",
     profileNotes:
       "Cash buyer targeting Birmingham. Consultation booked with Johnny. Strong fit for off-plan and completed stock.",
     stage: "Consultation booked",
     qualificationPct: 90,
     outreachNote: "Booked consultation",
-    lastContactedAt: isoDaysAgo(1, 13, 20),
-    lastResponseAt: isoDaysAgo(1, 14, 5),
+    lastContactedAt: "2026-09-05T13:20:00Z",
+    lastResponseAt: "2026-09-05T14:05:00Z",
     handoffRequested: false,
     whatsappConsent: true,
     optedOut: false,
@@ -266,8 +343,8 @@ export const whatsappLeads: WhatsAppLead[] = [
     stage: "Nurture",
     qualificationPct: 40,
     outreachNote: "Light nurture",
-    lastContactedAt: isoDaysAgo(3, 15),
-    lastResponseAt: isoDaysAgo(3, 16, 20),
+    lastContactedAt: "2026-09-01T15:00:00Z",
+    lastResponseAt: "2026-09-01T16:20:00Z",
     handoffRequested: false,
     whatsappConsent: true,
     optedOut: false,
@@ -287,9 +364,9 @@ export const whatsappLeads: WhatsAppLead[] = [
     status: "Not Contacted",
     source: "Spreadsheet upload",
     assignedRep: "Amelia Hart",
-    conversationSummary: "Imported lead — no outreach yet.",
+    conversationSummary: "Imported lead - no outreach yet.",
     profileNotes:
-      "Imported from the latest lead sheet. Phone valid; email pending verification. No conversation started.",
+      "Imported from September lead sheet. Phone valid; email pending verification. No conversation started.",
     stage: "New import",
     qualificationPct: 5,
     outreachNote: "Awaiting first touch",
@@ -303,33 +380,6 @@ export const whatsappLeads: WhatsAppLead[] = [
     preferredLocations: [],
   },
   {
-    id: "lead-maya",
-    name: "Maya Chen",
-    email: "maya.chen@example.com",
-    phone: "+447700444555",
-    market: "UK + UAE",
-    budget: 275_000,
-    interest: "Medium",
-    readiness: "Near Term",
-    status: "New",
-    source: "Organic inbound",
-    assignedRep: "Amelia Hart",
-    conversationSummary: "Just landed in the pool from an inbound form.",
-    profileNotes:
-      "Comparing UK yield vs Dubai off-plan. No WhatsApp opener sent yet.",
-    stage: "New",
-    qualificationPct: 8,
-    outreachNote: "Queue for first touch",
-    lastContactedAt: null,
-    lastResponseAt: null,
-    handoffRequested: false,
-    whatsappConsent: true,
-    optedOut: false,
-    funding: "Cash + mortgage",
-    timeline: "3–6 months",
-    preferredLocations: ["Manchester", "Dubai"],
-  },
-  {
     id: "lead-tom",
     name: "Tom Baker",
     email: "tom.baker@example.com",
@@ -341,13 +391,13 @@ export const whatsappLeads: WhatsAppLead[] = [
     status: "Opted Out",
     source: "External ad",
     assignedRep: "Amelia Hart",
-    conversationSummary: "Opted out — excluded from further WhatsApp outreach.",
+    conversationSummary: "Opted out - excluded from further WhatsApp outreach.",
     profileNotes: "Explicitly opted out of WhatsApp messaging. Keep in CRM only.",
     stage: "Opted out",
     qualificationPct: 10,
     outreachNote: "Do not contact via WhatsApp",
-    lastContactedAt: isoDaysAgo(18, 16, 30),
-    lastResponseAt: isoDaysAgo(18, 17),
+    lastContactedAt: "2026-08-20T16:30:00Z",
+    lastResponseAt: "2026-08-20T17:00:00Z",
     handoffRequested: false,
     whatsappConsent: false,
     optedOut: true,
@@ -374,7 +424,7 @@ export const whatsappLeads: WhatsAppLead[] = [
     stage: "Follow-up due",
     qualificationPct: 25,
     outreachNote: "No reply",
-    lastContactedAt: isoDaysAgo(5, 22),
+    lastContactedAt: "2026-08-28T22:00:00Z",
     lastResponseAt: null,
     handoffRequested: false,
     whatsappConsent: true,
@@ -383,326 +433,59 @@ export const whatsappLeads: WhatsAppLead[] = [
     timeline: "6 months",
     preferredLocations: ["London"],
   },
-  {
-    id: "lead-noah",
-    name: "Noah Williams",
-    email: "noah.williams@example.com",
-    phone: "+447700222333",
-    market: "UK",
-    budget: 195_000,
-    interest: "Medium",
-    readiness: "Near Term",
-    status: "Contacted",
-    source: "Leeds & Yorkshire Yield Walkthrough",
-    assignedRep: "Johnny Conran",
-    conversationSummary:
-      "Opened the Leeds webinar invite and replied with budget range.",
-    profileNotes:
-      "First-time investor. Prefers Yorkshire yield. Waiting on deposit confirmation from bank.",
-    stage: "Awaiting deposit proof",
-    qualificationPct: 45,
-    outreachNote: "Awaiting docs",
-    lastContactedAt: isoDaysAgo(2, 11),
-    lastResponseAt: isoDaysAgo(2, 12, 15),
-    handoffRequested: false,
-    whatsappConsent: true,
-    optedOut: false,
-    funding: "Mortgage",
-    timeline: "Within 4 months",
-    preferredLocations: ["Leeds", "Sheffield"],
-  },
-  {
-    id: "lead-layla",
-    name: "Layla Ibrahim",
-    email: "layla.ibrahim@example.com",
-    phone: "+971509876543",
-    market: "UAE",
-    budget: 550_000,
-    interest: "High",
-    readiness: "Ready Now",
-    status: "High Intent",
-    source: "Dubai Property Market Briefing",
-    assignedRep: "Amelia Hart",
-    conversationSummary:
-      "Ready to view Abu Dhabi off-plan — asking for a same-week call.",
-    profileNotes:
-      "Cash buyer. Strong fit for Abu Dhabi masterclass and Dubai briefing follow-up.",
-    stage: "Consultation request",
-    qualificationPct: 78,
-    outreachNote: "Book UAE desk",
-    lastContactedAt: isoDaysAgo(0, 15, 40),
-    lastResponseAt: isoDaysAgo(0, 16, 5),
-    handoffRequested: false,
-    whatsappConsent: true,
-    optedOut: false,
-    funding: "Cash",
-    timeline: "Immediate",
-    preferredLocations: ["Abu Dhabi", "Dubai"],
-  },
-  {
-    id: "lead-oliver",
-    name: "Oliver Grant",
-    email: "oliver.grant@example.com",
-    phone: "+447700666777",
-    market: "UK",
-    budget: 410_000,
-    interest: "Low",
-    readiness: "Exploring",
-    status: "Closed",
-    source: "Portfolio Review Clinic",
-    assignedRep: "Johnny Conran",
-    conversationSummary: "Closed after deciding to pause investing this year.",
-    profileNotes: "Keep warm for Q2 — asked not to chase until April.",
-    stage: "Closed",
-    qualificationPct: 30,
-    outreachNote: "Paused until Q2",
-    lastContactedAt: isoDaysAgo(12, 10),
-    lastResponseAt: isoDaysAgo(12, 11),
-    handoffRequested: false,
-    whatsappConsent: true,
-    optedOut: false,
-    funding: "Cash + mortgage",
-    timeline: "Next year",
-    preferredLocations: ["Bristol", "Bath"],
-  },
 ];
-
-const leadCount = whatsappLeads.length;
-const highIntentCount = whatsappLeads.filter((l) => l.interest === "High").length;
-const handoffCount = whatsappLeads.filter((l) => l.status === "Human Handoff").length;
-const activeCount = whatsappLeads.filter(
-  (l) => l.status === "Active Conversation",
-).length;
-const newCount = whatsappLeads.filter((l) => l.status === "New").length;
-const contactedCount = whatsappLeads.filter(
-  (l) =>
-    l.lastContactedAt != null &&
-    !["New", "Not Contacted", "Opted Out"].includes(l.status),
-).length;
-const respondedCount = whatsappLeads.filter((l) => l.lastResponseAt != null).length;
-const responsePct = contactedCount
-  ? Math.round((respondedCount / contactedCount) * 100)
-  : 0;
-const noResponsePct = Math.max(0, 100 - responsePct);
-const bookingCount = whatsappLeads.filter((l) => l.status === "Qualified").length;
-
-export const overviewMetrics: OverviewMetric[] = [
-  {
-    key: "total",
-    label: "Total leads",
-    value: String(leadCount),
-    hint: "In lead pool",
-  },
-  {
-    key: "new",
-    label: "New leads",
-    value: String(newCount),
-    hint: "Awaiting outreach",
-    tone: "up",
-  },
-  {
-    key: "contacted",
-    label: "Contacted",
-    value: String(contactedCount),
-    hint: "Business-initiated",
-  },
-  {
-    key: "active",
-    label: "Active conversations",
-    value: String(activeCount),
-    hint: "Live with Joe",
-  },
-  {
-    key: "response",
-    label: "Response rate",
-    value: `${responsePct}%`,
-    hint: "Of contacted",
-    tone: "up",
-  },
-  {
-    key: "no_response",
-    label: "No response",
-    value: `${noResponsePct}%`,
-    hint: "Of contacted",
-    tone: "down",
-  },
-  {
-    key: "high_intent",
-    label: "High intent",
-    value: String(highIntentCount),
-    hint: "Ready for rep",
-    tone: "up",
-  },
-  {
-    key: "handoffs",
-    label: "Human handoffs",
-    value: String(handoffCount),
-    hint: "Automation paused",
-    tone: "down",
-  },
-  {
-    key: "bookings",
-    label: "Bookings",
-    value: String(bookingCount),
-    hint: "Consultations",
-    tone: "up",
-  },
-  {
-    key: "webinars",
-    label: "Upcoming webinars",
-    value: "10",
-    hint: "Relevance matched",
-  },
-];
-
-/** Demo chart series — UI-only until WhatsApp worker APIs exist. */
-export const engagementSeries = [
-  { label: "W1", contacted: 5, responses: 3 },
-  { label: "W2", contacted: 7, responses: 5 },
-  { label: "W3", contacted: 6, responses: 4 },
-  { label: "W4", contacted: 9, responses: 7 },
-];
-
-/** Tiny sparkline values for overview KPI cards. */
-export const metricSparks: Record<string, number[]> = {
-  total: [4, 5, 6, 8, 9, 11, leadCount],
-  new: [0, 1, 0, 2, 1, 0, newCount],
-  contacted: [2, 3, 4, 5, 6, 7, contactedCount],
-  active: [0, 1, 1, 0, 1, 1, activeCount],
-  response: [40, 48, 55, 62, 58, 68, responsePct],
-  no_response: [60, 52, 45, 38, 42, 32, noResponsePct],
-  high_intent: [1, 1, 2, 2, 3, 3, highIntentCount],
-  handoffs: [0, 0, 1, 1, 1, 1, handoffCount],
-  bookings: [0, 0, 0, 1, 1, 1, bookingCount],
-  webinars: [4, 6, 7, 8, 9, 10, 10],
-};
-
-export const pipelineByStatus: { status: LeadStatus; count: number }[] = (
-  [
-    "Active Conversation",
-    "High Intent",
-    "Qualified",
-    "Human Handoff",
-    "Nurture",
-    "Contacted",
-    "No Response",
-    "Not Contacted",
-    "New",
-    "Closed",
-    "Opted Out",
-  ] as LeadStatus[]
-)
-  .map((status) => ({
-    status,
-    count: whatsappLeads.filter((l) => l.status === status).length,
-  }))
-  .filter((row) => row.count > 0);
-
-export const whatsappActivitySeries = [
-  { label: "Mon", responses: 6, highIntent: 2 },
-  { label: "Tue", responses: 8, highIntent: 3 },
-  { label: "Wed", responses: 5, highIntent: 1 },
-  { label: "Thu", responses: 9, highIntent: 4 },
-  { label: "Fri", responses: 7, highIntent: 3 },
-  { label: "Sat", responses: 4, highIntent: 2 },
-  { label: "Sun", responses: 3, highIntent: 1 },
-];
-
-const ukCount = whatsappLeads.filter((l) => l.market === "UK").length;
-const uaeCount = whatsappLeads.filter((l) => l.market === "UAE").length;
-const bothCount = whatsappLeads.filter((l) => l.market === "UK + UAE").length;
-const undecidedCount = whatsappLeads.filter((l) => l.market === "Undecided").length;
-
-export const marketInterest = [
-  {
-    market: "UK",
-    pct: Math.round((ukCount / leadCount) * 100),
-    count: ukCount,
-  },
-  {
-    market: "UAE",
-    pct: Math.round((uaeCount / leadCount) * 100),
-    count: uaeCount,
-  },
-  {
-    market: "UK + UAE",
-    pct: Math.round((bothCount / leadCount) * 100),
-    count: bothCount,
-  },
-  {
-    market: "Undecided",
-    pct: Math.round((undecidedCount / leadCount) * 100),
-    count: undecidedCount,
-  },
-].filter((row) => row.count > 0);
 
 export const recentActivity: ActivityItem[] = [
   {
     id: "act-1",
-    leadId: "lead-layla",
-    leadName: "Layla Ibrahim",
-    initials: "LI",
-    summary: "Ready to view Abu Dhabi off-plan — asking for a same-week call.",
-    at: isoDaysAgo(0, 16, 5),
+    leadId: "lead-fatima",
+    leadName: "Fatima Al-Sayed",
+    initials: "FA",
+    summary: "Qualified cash buyer for Birmingham - consultation booked.",
+    at: "2026-09-05T14:05:00Z",
   },
   {
     id: "act-2",
-    leadId: "lead-sarah",
-    leadName: "Sarah Jones",
-    initials: "SJ",
-    summary:
-      "Discussing Birmingham stock and mortgage eligibility ahead of the next UK webinar.",
-    at: isoDaysAgo(0, 20, 1),
-  },
-  {
-    id: "act-3",
     leadId: "lead-priya",
     leadName: "Priya Patel",
     initials: "PP",
     summary:
-      "High intent — requesting an advisor call on Leeds stock within 2 months.",
-    at: isoDaysAgo(1, 14, 40),
+      "High intent - requesting an advisor call on Leeds stock within 2 months.",
+    at: "2026-09-04T14:40:00Z",
+  },
+  {
+    id: "act-3",
+    leadId: "lead-sarah",
+    leadName: "Sarah Jones",
+    initials: "SJ",
+    summary:
+      "Discussing Birmingham stock and mortgage eligibility ahead of the September UK webinar.",
+    at: "2026-09-03T20:01:00Z",
   },
   {
     id: "act-4",
-    leadId: "lead-fatima",
-    leadName: "Fatima Al-Sayed",
-    initials: "FA",
-    summary: "Qualified cash buyer for Birmingham — consultation booked.",
-    at: isoDaysAgo(1, 14, 5),
-  },
-  {
-    id: "act-5",
     leadId: "lead-elena",
     leadName: "Elena Rossi",
     initials: "ER",
-    summary: "Requested a human advisor — automation paused until resume.",
-    at: isoDaysAgo(2, 21, 12),
+    summary: "Requested a human advisor - automation paused until resume.",
+    at: "2026-09-02T21:12:00Z",
   },
   {
-    id: "act-6",
-    leadId: "lead-noah",
-    leadName: "Noah Williams",
-    initials: "NW",
-    summary: "Opened the Leeds webinar invite and replied with budget range.",
-    at: isoDaysAgo(2, 12, 15),
-  },
-  {
-    id: "act-7",
+    id: "act-5",
     leadId: "lead-ahmed",
     leadName: "Ahmed Hassan",
     initials: "AH",
     summary:
       "On a light nurture cadence while he researches Dubai cash purchases.",
-    at: isoDaysAgo(3, 16, 20),
+    at: "2026-09-01T16:20:00Z",
   },
   {
-    id: "act-8",
+    id: "act-6",
     leadId: "lead-chris",
     leadName: "Chris Nguyen",
     initials: "CN",
     summary: "No reply after first qualification opener about London.",
-    at: isoDaysAgo(5, 22),
+    at: "2026-08-28T23:00:00Z",
   },
 ];
 
@@ -732,9 +515,9 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-uk-invest",
     title: "How to Invest in UK Property",
     market: "UK",
-    scheduledAt: isoDaysAhead(3, 18),
-    timezone: "GMT",
-    status: "Active",
+    scheduledAt: "2026-09-18T18:00:00+01:00",
+    timezone: "GMT+1",
+    status: "Scheduled",
     outreachMode: "Manual",
     relevantLeadIds: [
       "lead-sarah",
@@ -743,8 +526,6 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       "lead-james",
       "lead-chris",
       "lead-priya",
-      "lead-noah",
-      "lead-maya",
     ],
     engagement: {
       invited: 48,
@@ -760,8 +541,6 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       "lead-james",
       "lead-chris",
       "lead-priya",
-      "lead-noah",
-      "lead-maya",
     ]),
     suggestedCriteria: [
       "Market focus: UK",
@@ -776,19 +555,19 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-bham",
     title: "Birmingham Investment Opportunities",
     market: "UK",
-    scheduledAt: isoDaysAhead(8, 17, 30),
-    timezone: "GMT",
-    status: "Scheduled",
+    scheduledAt: "2026-10-02T17:30:00+01:00",
+    timezone: "GMT+1",
+    status: "Draft",
     outreachMode: "Automatic",
-    relevantLeadIds: ["lead-sarah", "lead-fatima", "lead-maya"],
+    relevantLeadIds: ["lead-sarah", "lead-fatima"],
     engagement: {
-      invited: 24,
-      opened: 14,
-      replied: 8,
-      registered: 5,
+      invited: 0,
+      opened: 0,
+      replied: 0,
+      registered: 0,
       attended: 0,
     },
-    audience: audienceFromLeads(["lead-sarah", "lead-fatima", "lead-maya"]),
+    audience: audienceFromLeads(["lead-sarah", "lead-fatima"]),
     suggestedCriteria: [
       "Preferred locations include Birmingham",
       "Budget ≥ £200k",
@@ -801,11 +580,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-dubai",
     title: "Dubai Property Market Briefing",
     market: "UAE",
-    scheduledAt: isoDaysAhead(12, 19),
+    scheduledAt: "2026-10-16T19:00:00+04:00",
     timezone: "GST",
     status: "Scheduled",
     outreachMode: "Manual",
-    relevantLeadIds: ["lead-ahmed", "lead-layla", "lead-maya"],
+    relevantLeadIds: ["lead-ahmed"],
     engagement: {
       invited: 22,
       opened: 14,
@@ -813,7 +592,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 4,
       attended: 0,
     },
-    audience: audienceFromLeads(["lead-ahmed", "lead-layla", "lead-maya"]),
+    audience: audienceFromLeads(["lead-ahmed"]),
     suggestedCriteria: [
       "Market focus: UAE",
       "Funding: Cash",
@@ -825,11 +604,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-leeds",
     title: "Leeds & Yorkshire Yield Walkthrough",
     market: "UK",
-    scheduledAt: isoDaysAhead(5, 18, 30),
+    scheduledAt: "2026-11-05T18:30:00Z",
     timezone: "GMT",
-    status: "Scheduled",
+    status: "Active",
     outreachMode: "Automatic",
-    relevantLeadIds: ["lead-priya", "lead-james", "lead-chris", "lead-noah"],
+    relevantLeadIds: ["lead-priya", "lead-james", "lead-chris"],
     engagement: {
       invited: 36,
       opened: 21,
@@ -837,12 +616,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 8,
       attended: 0,
     },
-    audience: audienceFromLeads([
-      "lead-priya",
-      "lead-james",
-      "lead-chris",
-      "lead-noah",
-    ]),
+    audience: audienceFromLeads(["lead-priya", "lead-james", "lead-chris"]),
     suggestedCriteria: [
       "Preferred locations: Leeds / Yorkshire",
       "Interest High or Medium",
@@ -854,18 +628,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-uk-uae",
     title: "UK vs UAE: Where to Deploy Capital",
     market: "UK + UAE",
-    scheduledAt: isoDaysAhead(16, 17),
+    scheduledAt: "2026-11-20T17:00:00Z",
     timezone: "GMT",
     status: "Draft",
     outreachMode: "Manual",
-    relevantLeadIds: [
-      "lead-ahmed",
-      "lead-elena",
-      "lead-chris",
-      "lead-sarah",
-      "lead-maya",
-      "lead-layla",
-    ],
+    relevantLeadIds: ["lead-ahmed", "lead-elena", "lead-chris", "lead-sarah"],
     engagement: {
       invited: 0,
       opened: 0,
@@ -878,8 +645,6 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       "lead-elena",
       "lead-chris",
       "lead-sarah",
-      "lead-maya",
-      "lead-layla",
     ]),
     suggestedCriteria: [
       "Market: UK, UAE, or UK + UAE",
@@ -893,11 +658,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-starter",
     title: "First-Time Investor Starter Session",
     market: "UK",
-    scheduledAt: isoDaysAhead(20, 18),
+    scheduledAt: "2026-12-04T18:00:00Z",
     timezone: "GMT",
     status: "Scheduled",
     outreachMode: "Automatic",
-    relevantLeadIds: ["lead-james", "lead-tom", "lead-chris", "lead-noah", "lead-maya"],
+    relevantLeadIds: ["lead-james", "lead-tom", "lead-chris"],
     engagement: {
       invited: 40,
       opened: 18,
@@ -905,12 +670,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 5,
       attended: 0,
     },
-    audience: audienceFromLeads([
-      "lead-james",
-      "lead-chris",
-      "lead-noah",
-      "lead-maya",
-    ]),
+    audience: audienceFromLeads(["lead-james", "lead-chris"]),
     suggestedCriteria: [
       "Status: New / Not Contacted / Exploring",
       "First-time investor signals",
@@ -922,11 +682,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-manc",
     title: "Manchester Regeneration Spotlight",
     market: "UK",
-    scheduledAt: isoDaysAhead(24, 18),
+    scheduledAt: "2026-12-11T18:00:00Z",
     timezone: "GMT",
     status: "Scheduled",
     outreachMode: "Manual",
-    relevantLeadIds: ["lead-elena", "lead-sarah", "lead-fatima", "lead-maya"],
+    relevantLeadIds: ["lead-elena", "lead-sarah", "lead-fatima"],
     engagement: {
       invited: 28,
       opened: 16,
@@ -934,12 +694,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 6,
       attended: 0,
     },
-    audience: audienceFromLeads([
-      "lead-elena",
-      "lead-sarah",
-      "lead-fatima",
-      "lead-maya",
-    ]),
+    audience: audienceFromLeads(["lead-elena", "lead-sarah", "lead-fatima"]),
     suggestedCriteria: [
       "Preferred locations include Manchester",
       "Interest Medium+",
@@ -951,11 +706,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-auh",
     title: "Abu Dhabi Off-Plan Masterclass",
     market: "UAE",
-    scheduledAt: isoDaysAhead(28, 20),
+    scheduledAt: "2026-12-18T20:00:00+04:00",
     timezone: "GST",
     status: "Draft",
     outreachMode: "Automatic",
-    relevantLeadIds: ["lead-ahmed", "lead-layla"],
+    relevantLeadIds: ["lead-ahmed"],
     engagement: {
       invited: 0,
       opened: 0,
@@ -963,7 +718,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 0,
       attended: 0,
     },
-    audience: audienceFromLeads(["lead-ahmed", "lead-layla"]),
+    audience: audienceFromLeads(["lead-ahmed"]),
     suggestedCriteria: [
       "Market: UAE",
       "Cash buyers preferred",
@@ -975,11 +730,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-portfolio",
     title: "Portfolio Review Clinic",
     market: "UK",
-    scheduledAt: isoDaysAhead(35, 17, 30),
+    scheduledAt: "2027-01-08T17:30:00Z",
     timezone: "GMT",
     status: "Scheduled",
     outreachMode: "Manual",
-    relevantLeadIds: ["lead-fatima", "lead-chris", "lead-priya", "lead-noah"],
+    relevantLeadIds: ["lead-fatima", "lead-chris", "lead-priya"],
     engagement: {
       invited: 20,
       opened: 12,
@@ -987,12 +742,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       registered: 5,
       attended: 0,
     },
-    audience: audienceFromLeads([
-      "lead-fatima",
-      "lead-chris",
-      "lead-priya",
-      "lead-noah",
-    ]),
+    audience: audienceFromLeads(["lead-fatima", "lead-chris", "lead-priya"]),
     suggestedCriteria: [
       "Qualified or High Intent",
       "Budget ≥ £180k",
@@ -1004,17 +754,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-tax",
     title: "Tax & Structuring for Overseas Buyers",
     market: "UK",
-    scheduledAt: isoDaysAhead(42, 12),
+    scheduledAt: "2027-01-15T12:00:00Z",
     timezone: "GMT",
     status: "Scheduled",
     outreachMode: "Automatic",
-    relevantLeadIds: [
-      "lead-elena",
-      "lead-ahmed",
-      "lead-fatima",
-      "lead-chris",
-      "lead-layla",
-    ],
+    relevantLeadIds: ["lead-elena", "lead-ahmed", "lead-fatima", "lead-chris"],
     engagement: {
       invited: 34,
       opened: 19,
@@ -1027,7 +771,6 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
       "lead-ahmed",
       "lead-fatima",
       "lead-chris",
-      "lead-layla",
     ]),
     suggestedCriteria: [
       "Overseas / remittance questions",
@@ -1041,7 +784,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-completed-demo",
     title: "Spring Investor Roundtable (past)",
     market: "UK",
-    scheduledAt: isoDaysAgo(40, 18),
+    scheduledAt: "2026-03-12T18:00:00Z",
     timezone: "GMT",
     status: "Completed",
     outreachMode: "Manual",
@@ -1061,7 +804,7 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
     id: "web-cancelled-demo",
     title: "Cancelled Soft Launch Briefing",
     market: "UK",
-    scheduledAt: isoDaysAgo(20, 17),
+    scheduledAt: "2026-08-01T17:00:00Z",
     timezone: "GMT",
     status: "Cancelled",
     outreachMode: "Automatic",
@@ -1079,17 +822,11 @@ export const whatsappWebinars: WhatsAppWebinar[] = [
   },
 ];
 
-overviewMetrics.find((m) => m.key === "webinars")!.value = String(
-  whatsappWebinars.filter((w) =>
-    ["Draft", "Scheduled", "Active"].includes(w.status),
-  ).length,
-);
-
 export const uploadHistorySeed: UploadHistoryItem[] = [
   {
     id: "up-1",
-    fileName: "november-leads.xlsx",
-    uploadedAt: isoDaysAgo(1, 10, 15),
+    fileName: "september-leads.xlsx",
+    uploadedAt: "2026-09-01T10:15:00Z",
     uploadedBy: "Amelia Hart",
     rowsTotal: 42,
     rowsNew: 28,
@@ -1100,7 +837,7 @@ export const uploadHistorySeed: UploadHistoryItem[] = [
   {
     id: "up-2",
     fileName: "webinar-registrants-uk.csv",
-    uploadedAt: isoDaysAgo(4, 14, 40),
+    uploadedAt: "2026-08-22T14:40:00Z",
     uploadedBy: "Johnny Conran",
     rowsTotal: 65,
     rowsNew: 51,
@@ -1111,24 +848,13 @@ export const uploadHistorySeed: UploadHistoryItem[] = [
   {
     id: "up-3",
     fileName: "uae-cash-buyers.xlsx",
-    uploadedAt: isoDaysAgo(8, 9, 5),
+    uploadedAt: "2026-08-10T09:05:00Z",
     uploadedBy: "Amelia Hart",
     rowsTotal: 18,
     rowsNew: 15,
     rowsDuplicate: 3,
     rowsInvalid: 0,
     status: "Completed",
-  },
-  {
-    id: "up-4",
-    fileName: "manchester-inbound.csv",
-    uploadedAt: isoDaysAgo(12, 11, 20),
-    uploadedBy: "Johnny Conran",
-    rowsTotal: 31,
-    rowsNew: 22,
-    rowsDuplicate: 7,
-    rowsInvalid: 2,
-    status: "Partial",
   },
 ];
 
