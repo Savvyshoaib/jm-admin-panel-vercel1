@@ -128,6 +128,7 @@ import {
   mockListInvitations,
   mockListInvestors,
   mockListNotes,
+  mockGetInvestorEngagement,
   mockListOwnership,
   mockListSignals,
   mockUnassignProperty,
@@ -139,8 +140,14 @@ import {
   mockUploadInvestorDocument,
 } from "@/services/mockInvestors";
 import {
+  mockGetCalculatorDefaults,
   mockGetDashboardStats,
+  mockGetInsightPreset,
   mockGetSettings,
+  mockGetUkhpiLog,
+  mockListUkhpiLogs,
+  mockSaveCalculatorDefaults,
+  mockSaveInsightPreset,
   mockInviteUser,
   mockResendUserInvite,
   mockListAgents,
@@ -458,13 +465,13 @@ export async function sortProperties(
 }
 
 export async function listUkhpiLogs(): Promise<UkhpiLog[]> {
-  if (USE_MOCK_DATA) return [];
+  if (USE_MOCK_DATA) return mockListUkhpiLogs();
   const { items } = await fetchUkhpiLogs();
   return items;
 }
 
 export async function getUkhpiLog(id: string): Promise<UkhpiLog | null> {
-  if (USE_MOCK_DATA) return null;
+  if (USE_MOCK_DATA) return mockGetUkhpiLog(id);
   const { item } = await fetchUkhpiLog(id);
   return item;
 }
@@ -810,19 +817,19 @@ export async function updateAssumption(
 }
 
 export async function getCalculatorDefaults(): Promise<CalculatorDefaultsPayload | null> {
-  if (USE_MOCK_DATA) return null;
+  if (USE_MOCK_DATA) return mockGetCalculatorDefaults();
   return fetchCalculatorDefaults();
 }
 
 export async function getPropertyInsightPreset(): Promise<PropertyInsightPreset | null> {
-  if (USE_MOCK_DATA) return null;
+  if (USE_MOCK_DATA) return mockGetInsightPreset();
   return fetchPropertyInsightPreset();
 }
 
 export async function saveCalculatorDefaults(
   body: CalculatorDefaultsPayload,
 ): Promise<CalculatorDefaultsPayload> {
-  if (USE_MOCK_DATA) return body;
+  if (USE_MOCK_DATA) return mockSaveCalculatorDefaults(body);
   return putCalculatorDefaults(body);
 }
 
@@ -831,7 +838,7 @@ export async function savePropertyInsightPreset(
 ): Promise<PropertyInsightPreset> {
   if (USE_MOCK_DATA) {
     invalidatePropertyInsightPreset();
-    return mapSavedInsight(body);
+    return mockSaveInsightPreset(mapSavedInsight(body));
   }
   const saved = await putPropertyInsightPreset(body);
   invalidatePropertyInsightPreset();
@@ -1059,7 +1066,7 @@ function pickRecentProperties(properties: PropertyUnit[]): PropertyUnit[] {
 export async function getInvestorEngagement(
   investorId: string,
 ): Promise<InvestorEngagement> {
-  if (USE_MOCK_DATA) return emptyInvestorEngagement(investorId);
+  if (USE_MOCK_DATA) return mockGetInvestorEngagement(investorId);
   try {
     return await fetchQikoInvestorEngagement(investorId);
   } catch (err) {
@@ -1172,7 +1179,6 @@ export async function generatePortfolioInsights(input: {
   holdings: PortfolioOwnership[];
   properties?: PropertyUnit[];
 }): Promise<PortfolioInsightCard[]> {
-  if (USE_MOCK_DATA) return [];
   const investorNames = splitInvestorName(
     input.investorName,
     input.investorFirstName,
@@ -1197,6 +1203,18 @@ export async function generatePortfolioInsights(input: {
     };
   });
   if (metrics.length === 0) return [];
+
+  if (USE_MOCK_DATA) {
+    const firstName =
+      investorNames.firstName || input.investorName || "This investor";
+    return metrics.slice(0, 4).map((row) => ({
+      category: row.grossYieldPct >= 5 ? "Yield" : "Growth",
+      metric: `${row.grossYieldPct}% gross · ${row.capitalGrowthPct}% growth`,
+      headline: `${row.name} is carrying the portfolio`,
+      evidence: `${firstName}'s holding shows ${row.grossYieldPct}% gross yield and about £${Math.round(row.netMonthly).toLocaleString("en-GB")} net a month.`,
+      trend: row.capitalGrowthPct >= 3 ? "high" : "medium",
+    }));
+  }
 
   const platformAverages: Record<
     string,

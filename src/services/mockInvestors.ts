@@ -1,12 +1,13 @@
 /**
  * Local mock Investors (+ ownership, notes, activity, invitations, docs, signals).
- * Persists to localStorage (`jm-admin-mock-investors-v2`) for FE testing across reloads.
+ * Persists to localStorage (`jm-admin-mock-investors-v4`) for FE testing across reloads.
  */
 import { createClientId } from "@/lib/ids";
 import type {
   ActivityEvent,
   DocumentAsset,
   IntentSignal,
+  InvestorEngagement,
   Invitation,
   Investor,
   Note,
@@ -20,7 +21,7 @@ import {
   mockSetPropertyInvestor,
 } from "@/services/mockInventory";
 
-const STORAGE_KEY = "jm-admin-mock-investors-v2";
+const STORAGE_KEY = "jm-admin-mock-investors-v4";
 
 type InvestorsDb = {
   investors: Investor[];
@@ -565,6 +566,58 @@ export async function mockUpdateSignal(
   db.signals[idx] = { ...db.signals[idx], ...patch, id: db.signals[idx].id };
   writeDb(db);
   return delay(db.signals[idx]);
+}
+
+export async function mockGetInvestorEngagement(
+  investorId: string,
+): Promise<InvestorEngagement> {
+  const db = readDb();
+  const recent = db.activity
+    .filter((event) => String(event.investorId) === String(investorId))
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  const signals = db.signals.filter(
+    (signal) => String(signal.investorId) === String(investorId),
+  );
+  const propertyCounts = new Map<string, { name: string; count: number }>();
+  for (const event of recent) {
+    if (!event.propertyId) continue;
+    const current = propertyCounts.get(event.propertyId) ?? {
+      name: event.title,
+      count: 0,
+    };
+    current.count += 1;
+    propertyCounts.set(event.propertyId, current);
+  }
+  return delay({
+    investorRef: investorId,
+    screens: [
+      { label: "Explore", visitCount: Math.max(4, recent.length) },
+      { label: "Property", visitCount: Math.max(2, propertyCounts.size + 1) },
+      {
+        label: "Calculator",
+        visitCount: recent.filter((e) => e.type === "calculator").length || 2,
+      },
+      { label: "Portfolio", visitCount: 2 },
+    ],
+    properties: [...propertyCounts.entries()].map(([id, row]) => ({
+      propertyName: row.name || id,
+      location: null,
+      postcode: null,
+      visitCount: row.count,
+    })),
+    calculatorSteps: [
+      { step: "Goal", visitCount: 4 },
+      { step: "Route", visitCount: 3 },
+      { step: "Capital", visitCount: 2 },
+      { step: "Finance", visitCount: 2 },
+    ],
+    totalEvents: recent.length + signals.length,
+    recent,
+    signals,
+    insufficientActivity: false,
+    reason: null,
+    activityEventCount: recent.length,
+  });
 }
 
 export function resetMockInvestors() {

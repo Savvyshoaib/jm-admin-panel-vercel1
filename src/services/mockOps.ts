@@ -7,6 +7,7 @@ import type {
   Assumption,
   AssumptionVersion,
   AuditRecord,
+  ComingSoonSection,
   ContentBlock,
   ContentMediaAsset,
   DashboardStats,
@@ -17,14 +18,19 @@ import type {
   PlatformSettings,
   Role,
   SignalRule,
+  UkhpiLog,
 } from "@/models";
+import type {
+  CalculatorDefaultsPayload,
+  PropertyInsightPreset,
+} from "@/services/assumptionsApi";
 import type { ContentWriteInput } from "@/services/contentApi";
 import type { EnquiryPatchInput } from "@/services/enquiriesApi";
 import { getMockOpsSeed } from "@/services/mockData";
 import { mockListActivity, mockListDocuments, mockListInvitations, mockListInvestors, mockListSignals } from "@/services/mockInvestors";
 import { mockListDevelopments, mockListProperties } from "@/services/mockInventory";
 
-const STORAGE_KEY = "jm-admin-mock-ops-v2";
+const STORAGE_KEY = "jm-admin-mock-ops-v4";
 
 type OpsDb = {
   users: InternalUser[];
@@ -37,6 +43,10 @@ type OpsDb = {
   audit: AuditRecord[];
   rules: SignalRule[];
   folders: Folder[];
+  ukhpiLogs: UkhpiLog[];
+  comingSoon: ComingSoonSection;
+  calculatorDefaults: CalculatorDefaultsPayload;
+  insightPreset: PropertyInsightPreset;
 };
 
 function nowIso() {
@@ -80,6 +90,10 @@ function readDb(): OpsDb {
       audit: parsed.audit ?? [],
       rules: parsed.rules ?? [],
       folders: parsed.folders ?? [],
+      ukhpiLogs: parsed.ukhpiLogs ?? seedDb().ukhpiLogs,
+      comingSoon: parsed.comingSoon ?? seedDb().comingSoon,
+      calculatorDefaults: parsed.calculatorDefaults ?? seedDb().calculatorDefaults,
+      insightPreset: parsed.insightPreset ?? seedDb().insightPreset,
     };
   } catch {
     const seeded = seedDb();
@@ -494,7 +508,10 @@ export async function mockGetDashboardStats(): Promise<DashboardStats> {
     recentActivity: activity.slice(0, 8),
     newEnquiries: openEnquiries.slice(0, 5),
     recentInvites: invites.slice(0, 5),
-    recentPriceUpdates: [],
+    recentPriceUpdates: [...readDb().ukhpiLogs]
+      .filter((log) => log.status.toLowerCase() !== "skipped")
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, 5),
     recentProperties: [...properties]
       .sort(
         (a, b) =>
@@ -504,6 +521,54 @@ export async function mockGetDashboardStats(): Promise<DashboardStats> {
   };
 
   return delay(stats);
+}
+
+export async function mockListUkhpiLogs(): Promise<UkhpiLog[]> {
+  return delay([...readDb().ukhpiLogs]);
+}
+
+export async function mockGetUkhpiLog(id: string): Promise<UkhpiLog | null> {
+  const row = readDb().ukhpiLogs.find((log) => String(log.id) === String(id));
+  return delay(row ?? null);
+}
+
+export async function mockGetComingSoon(): Promise<ComingSoonSection> {
+  return delay(structuredClone(readDb().comingSoon));
+}
+
+export async function mockSaveComingSoon(
+  section: ComingSoonSection,
+): Promise<ComingSoonSection> {
+  const db = readDb();
+  db.comingSoon = structuredClone(section);
+  writeDb(db);
+  return delay(db.comingSoon);
+}
+
+export async function mockGetCalculatorDefaults(): Promise<CalculatorDefaultsPayload> {
+  return delay(structuredClone(readDb().calculatorDefaults));
+}
+
+export async function mockSaveCalculatorDefaults(
+  body: CalculatorDefaultsPayload,
+): Promise<CalculatorDefaultsPayload> {
+  const db = readDb();
+  db.calculatorDefaults = structuredClone(body);
+  writeDb(db);
+  return delay(db.calculatorDefaults);
+}
+
+export async function mockGetInsightPreset(): Promise<PropertyInsightPreset> {
+  return delay(structuredClone(readDb().insightPreset));
+}
+
+export async function mockSaveInsightPreset(
+  preset: PropertyInsightPreset,
+): Promise<PropertyInsightPreset> {
+  const db = readDb();
+  db.insightPreset = structuredClone(preset);
+  writeDb(db);
+  return delay(db.insightPreset);
 }
 
 export function resetMockOps() {

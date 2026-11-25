@@ -39,12 +39,12 @@ import {
 import { cn } from "@/lib/utils";
 import {
   listActivity,
+  listAgents,
   listEnquiries,
   listInvestors,
   listOwnership,
   listSignals,
 } from "@/services/api";
-import { fetchAgents } from "@/services/usersApi";
 import type {
   ActivityEvent,
   Enquiry,
@@ -313,9 +313,8 @@ export function DashboardPage() {
     void listOwnership()
       .then((items) => finish("ownership", items))
       .catch(() => finish("ownership"));
-    // Agents only (skip /admin/users merge — dashboard only needs names).
-    void fetchAgents()
-      .then(({ items }) => finish("agents", items))
+    void listAgents()
+      .then((items) => finish("agents", items))
       .catch(() => finish("agents"));
 
     return () => {
