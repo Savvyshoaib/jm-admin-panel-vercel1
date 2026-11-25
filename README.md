@@ -4,7 +4,7 @@ Internal admin frontend for **Joseph Mews** — investor operations, properties,
 
 Built as a Vite + React SPA with Joseph Mews brand guidelines (logo, New Spirit / Sharp Sans, palette `#FCC11D`, `#1D1D1F`, `#FFF5E9`, `#FFFFFF`).
 
-> **Mock mode:** set `VITE_USE_MOCK_DATA=true` in `.env.local`. Admin data comes from `src/data/mockDemoSeed.ts` (localStorage `*-v6`). WhatsApp Worker screens use `src/data/whatsappWorkerMock.ts`. Login: `admin@josephmews.com` / `Password123!`.
+> **Mock mode:** set `VITE_USE_MOCK_DATA=true` in `.env.local`. Admin data comes from `src/data/mockDemoSeed.ts` (localStorage `*-v6`). WhatsApp Worker screens use `src/data/whatsappWorkerMock.ts` (including chat threads). Login: `admin@josephmews.com` / `Password123!`.
 
 ## Stack
 

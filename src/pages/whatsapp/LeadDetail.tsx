@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams } from "wouter";
 import {
   ArrowLeft,
@@ -15,11 +16,19 @@ import {
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { InteraktPill } from "@/components/whatsapp/InteraktPill";
+import { LeadChatThread } from "@/components/whatsapp/LeadChatThread";
 import { LeadStatusBadge } from "@/components/whatsapp/LeadStatusBadge";
 import {
   INTERAKT_CONNECTED,
   getLeadById,
+  getMessagesForLead,
   leadInitials,
   type InterestLevel,
   type WhatsAppLead,
@@ -119,7 +128,7 @@ function CopyRow({
   href?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5 ring-1 ring-white/8">
+    <div className="flex h-full items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5 ring-1 ring-white/8">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
         <Icon className="size-3.5" aria-hidden />
       </span>
@@ -155,6 +164,7 @@ function CopyRow({
 export function WhatsAppLeadDetailPage() {
   const params = useParams<{ id: string }>();
   const lead = params.id ? getLeadById(params.id) : undefined;
+  const [chatOpen, setChatOpen] = useState(false);
 
   if (!lead) {
     return (
@@ -171,6 +181,7 @@ export function WhatsAppLeadDetailPage() {
   }
 
   const action = recommendedAction(lead);
+  const messages = getMessagesForLead(lead.id);
   const budget =
     lead.budget != null ? formatCurrency(lead.budget) : "Budget TBC";
   const paused = lead.handoffRequested || lead.optedOut;
@@ -206,12 +217,12 @@ export function WhatsAppLeadDetailPage() {
       </nav>
 
       <section className="glass-panel overflow-hidden rounded-2xl ring-1 ring-white/8">
-        <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex min-w-0 gap-4">
+        <div className="flex flex-col gap-4 p-5 sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
             <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 font-serif text-lg font-medium text-primary ring-1 ring-primary/25">
               {leadInitials(lead.name)}
             </span>
-            <div className="min-w-0 space-y-2">
+            <div className="min-w-0 flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-serif text-2xl font-medium tracking-tight sm:text-[1.75rem]">
                   {lead.name}
@@ -259,8 +270,13 @@ export function WhatsAppLeadDetailPage() {
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2 lg:flex-col lg:items-end">
-            <Button variant="outline" size="sm" className="rounded-xl" asChild>
+          <div className="flex shrink-0 flex-nowrap items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 whitespace-nowrap rounded-xl"
+              asChild
+            >
               <Link href="/whatsapp/leads">
                 <ArrowLeft className="size-3.5" />
                 Back to leads
@@ -268,7 +284,7 @@ export function WhatsAppLeadDetailPage() {
             </Button>
             <Button
               size="sm"
-              className="rounded-xl"
+              className="shrink-0 whitespace-nowrap rounded-xl"
               disabled={lead.optedOut}
               onClick={onPrimary}
             >
@@ -287,19 +303,23 @@ export function WhatsAppLeadDetailPage() {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Assigned rep
             </p>
-            <p className="mt-0.5 text-sm font-medium">{lead.assignedRep}</p>
+            <p className="mt-1 truncate text-sm font-medium leading-5">
+              {lead.assignedRep}
+            </p>
           </div>
           <div className="bg-background/40 px-5 py-3">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Source
             </p>
-            <p className="mt-0.5 truncate text-sm font-medium">{lead.source}</p>
+            <p className="mt-1 truncate text-sm font-medium leading-5">
+              {lead.source}
+            </p>
           </div>
           <div className="bg-background/40 px-5 py-3">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Last response
             </p>
-            <p className="mt-0.5 text-sm font-medium">
+            <p className="mt-1 truncate text-sm font-medium leading-5">
               {lead.lastResponseAt
                 ? formatDateTime(lead.lastResponseAt)
                 : "No reply yet"}
@@ -308,15 +328,15 @@ export function WhatsAppLeadDetailPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-        <div className="space-y-4">
+      <div className="grid items-start gap-4 xl:grid-cols-12">
+        <div className="flex flex-col gap-4 xl:col-span-7">
           <section className="glass-panel space-y-4 rounded-2xl p-5 ring-1 ring-white/8">
             <div className="flex items-start justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="label-eyebrow">Qualification</p>
                 <p className="mt-1 text-sm text-muted-foreground">{lead.stage}</p>
               </div>
-              <p className="font-serif text-2xl tabular-nums text-primary">
+              <p className="shrink-0 font-serif text-2xl tabular-nums leading-none text-primary">
                 {lead.qualificationPct}%
               </p>
             </div>
@@ -333,7 +353,7 @@ export function WhatsAppLeadDetailPage() {
                 style={{ width: `${Math.min(100, lead.qualificationPct)}%` }}
               />
             </div>
-            <dl className="grid gap-4 sm:grid-cols-2">
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
               <Field label="Market" value={lead.market} />
               <Field label="Budget" value={budget} />
               <Field label="Funding" value={lead.funding} />
@@ -374,7 +394,7 @@ export function WhatsAppLeadDetailPage() {
 
           <section className="glass-panel space-y-3 rounded-2xl p-5 ring-1 ring-white/8">
             <p className="label-eyebrow">Contact</p>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-stretch">
               <CopyRow
                 icon={Mail}
                 label="Email"
@@ -391,7 +411,7 @@ export function WhatsAppLeadDetailPage() {
           </section>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4 xl:col-span-5">
           <section
             className={cn(
               "glass-panel space-y-3 rounded-2xl p-5 ring-1",
@@ -399,7 +419,9 @@ export function WhatsAppLeadDetailPage() {
             )}
           >
             <p className="label-eyebrow">Recommended next move</p>
-            <h2 className="font-serif text-xl font-medium">{action.title}</h2>
+            <h2 className="font-serif text-xl font-medium leading-snug">
+              {action.title}
+            </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {action.detail}
             </p>
@@ -419,19 +441,21 @@ export function WhatsAppLeadDetailPage() {
           </section>
 
           <section className="glass-panel space-y-4 rounded-2xl p-5 ring-1 ring-white/8">
-            <p className="label-eyebrow">Conversation</p>
-            <div className="flex items-center justify-between gap-2">
-              <LeadStatusBadge status={lead.status} />
-              <span className="text-xs text-muted-foreground">
-                {lead.handoffRequested ? "Automation paused" : "Joe handling"}
-              </span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="label-eyebrow">Conversation</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <LeadStatusBadge status={lead.status} />
+                <span className="text-xs text-muted-foreground">
+                  {lead.handoffRequested ? "Automation paused" : "Joe handling"}
+                </span>
+              </div>
             </div>
             <ol className="space-y-3">
-              <li className="flex gap-3">
+              <li className="flex items-start gap-3">
                 <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
                   <MessageCircle className="size-3.5" />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Last response</p>
                   <p className="text-xs text-muted-foreground">
                     {lead.lastResponseAt
@@ -440,11 +464,11 @@ export function WhatsAppLeadDetailPage() {
                   </p>
                 </div>
               </li>
-              <li className="flex gap-3">
+              <li className="flex items-start gap-3">
                 <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/6 text-muted-foreground">
                   <CalendarClock className="size-3.5" />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Last contacted</p>
                   <p className="text-xs text-muted-foreground">
                     {lead.lastContactedAt
@@ -453,11 +477,11 @@ export function WhatsAppLeadDetailPage() {
                   </p>
                 </div>
               </li>
-              <li className="flex gap-3">
+              <li className="flex items-start gap-3">
                 <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/6 text-muted-foreground">
                   <HandHelping className="size-3.5" />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">Human handoff</p>
                   <p className="text-xs text-muted-foreground">
                     {lead.handoffRequested
@@ -467,9 +491,17 @@ export function WhatsAppLeadDetailPage() {
                 </div>
               </li>
             </ol>
+            <Button
+              variant="outline"
+              className="w-full rounded-xl"
+              onClick={() => setChatOpen(true)}
+            >
+              <MessageCircle className="size-3.5" />
+              WhatsApp conversation
+            </Button>
           </section>
 
-          <section className="glass-panel grid grid-cols-2 gap-3 rounded-2xl p-5 ring-1 ring-white/8">
+          <section className="glass-panel grid grid-cols-2 gap-x-4 gap-y-1 rounded-2xl p-5 ring-1 ring-white/8">
             <Field
               label="Consent"
               value={lead.whatsappConsent ? "Yes" : "No"}
@@ -483,6 +515,26 @@ export function WhatsAppLeadDetailPage() {
           </section>
         </div>
       </div>
+
+      <Sheet open={chatOpen} onOpenChange={setChatOpen}>
+        <SheetContent
+          side="right"
+          className="w-full gap-0 p-0 sm:max-w-md md:max-w-lg"
+        >
+          <SheetTitle className="sr-only">
+            WhatsApp conversation with {lead.name}
+          </SheetTitle>
+          <SheetDescription className="sr-only">
+            Message history for {lead.name} on {lead.phone}.
+          </SheetDescription>
+          <LeadChatThread
+            lead={lead}
+            messages={messages}
+            compactHeader
+            className="h-full"
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -77,8 +77,9 @@ function readDb(): OpsDb {
       writeDb(seeded);
       return seeded;
     }
+    const seeded = seedDb();
     return {
-      ...seedDb(),
+      ...seeded,
       ...parsed,
       users: parsed.users ?? [],
       enquiries: parsed.enquiries ?? [],
@@ -86,14 +87,14 @@ function readDb(): OpsDb {
       assumptions: parsed.assumptions ?? [],
       assumptionVersions: parsed.assumptionVersions ?? [],
       content: parsed.content ?? [],
-      settings: parsed.settings ?? seedDb().settings,
+      settings: parsed.settings ?? seeded.settings,
       audit: parsed.audit ?? [],
       rules: parsed.rules ?? [],
       folders: parsed.folders ?? [],
-      ukhpiLogs: parsed.ukhpiLogs ?? seedDb().ukhpiLogs,
-      comingSoon: parsed.comingSoon ?? seedDb().comingSoon,
-      calculatorDefaults: parsed.calculatorDefaults ?? seedDb().calculatorDefaults,
-      insightPreset: parsed.insightPreset ?? seedDb().insightPreset,
+      ukhpiLogs: parsed.ukhpiLogs ?? seeded.ukhpiLogs,
+      comingSoon: parsed.comingSoon ?? seeded.comingSoon,
+      calculatorDefaults: parsed.calculatorDefaults ?? seeded.calculatorDefaults,
+      insightPreset: parsed.insightPreset ?? seeded.insightPreset,
     };
   } catch {
     const seeded = seedDb();

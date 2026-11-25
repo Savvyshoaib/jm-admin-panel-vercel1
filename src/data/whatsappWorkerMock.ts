@@ -25,6 +25,18 @@ export type Readiness = "Ready Now" | "Near Term" | "Exploring" | "Unknown";
 export type MarketFocus = "UK" | "UAE" | "UK + UAE" | "Undecided";
 export type OutreachMode = "Manual" | "Automatic";
 
+export type WhatsAppMsgRole = "lead" | "joe" | "system";
+export type WhatsAppMsgStatus = "sent" | "delivered" | "read";
+
+export type WhatsAppThreadMessage = {
+  id: string;
+  leadId: string;
+  role: WhatsAppMsgRole;
+  body: string;
+  at: string;
+  status?: WhatsAppMsgStatus;
+};
+
 export type WhatsAppLead = {
   id: string;
   name: string;
@@ -858,8 +870,224 @@ export const uploadHistorySeed: UploadHistoryItem[] = [
   },
 ];
 
+export const whatsappThreads: WhatsAppThreadMessage[] = [
+  // Sarah Jones — active Birmingham / mortgage qualification
+  {
+    id: "msg-sarah-1",
+    leadId: "lead-sarah",
+    role: "joe",
+    body: "Hi Sarah, it's Joe from Joseph Mews. You registered for How to Invest in UK Property — happy to help you look at Birmingham stock if that's still of interest.",
+    at: "2026-09-03T18:42:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-sarah-2",
+    leadId: "lead-sarah",
+    role: "lead",
+    body: "Hi Joe, yes — Birmingham and the Midlands. Budget is around £250k and I'd need a mortgage.",
+    at: "2026-09-03T18:51:00Z",
+  },
+  {
+    id: "msg-sarah-3",
+    leadId: "lead-sarah",
+    role: "joe",
+    body: "That's a strong fit. Timeline wise, are you looking to complete within the next few months?",
+    at: "2026-09-03T18:54:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-sarah-4",
+    leadId: "lead-sarah",
+    role: "lead",
+    body: "Within about four months if the numbers work. I also wanted to check mortgage eligibility before I look at units.",
+    at: "2026-09-03T19:08:00Z",
+  },
+  {
+    id: "msg-sarah-5",
+    leadId: "lead-sarah",
+    role: "joe",
+    body: "Understood. There's a UK webinar in September covering Birmingham stock and mortgage routes — I'll send the details. Johnny Conran can also walk you through eligibility.",
+    at: "2026-09-03T19:30:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-sarah-6",
+    leadId: "lead-sarah",
+    role: "lead",
+    body: "Please do. I'd like to understand Birmingham stock and mortgage eligibility ahead of the webinar.",
+    at: "2026-09-03T20:01:00Z",
+  },
+
+  // Priya Patel — high intent, advisor call
+  {
+    id: "msg-priya-1",
+    leadId: "lead-priya",
+    role: "joe",
+    body: "Hi Priya, Joe here from Joseph Mews. You looked at Birmingham Investment Opportunities — still focused on yield stock?",
+    at: "2026-09-04T12:40:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-priya-2",
+    leadId: "lead-priya",
+    role: "lead",
+    body: "Leeds actually. Looking at around £180k, deposit is ready. Can someone call me this week?",
+    at: "2026-09-04T13:02:00Z",
+  },
+  {
+    id: "msg-priya-3",
+    leadId: "lead-priya",
+    role: "joe",
+    body: "Yes — Johnny can take an advisor call on Leeds stock. Are you targeting completion within two months?",
+    at: "2026-09-04T13:10:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-priya-4",
+    leadId: "lead-priya",
+    role: "lead",
+    body: "Yes, within 2 months. Please book me in — high priority.",
+    at: "2026-09-04T14:40:00Z",
+  },
+
+  // Elena Rossi — human handoff
+  {
+    id: "msg-elena-1",
+    leadId: "lead-elena",
+    role: "joe",
+    body: "Hi Elena, Joe from Joseph Mews. You signed up after How to Invest in UK Property. Manchester or London still of interest?",
+    at: "2026-09-02T19:55:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-elena-2",
+    leadId: "lead-elena",
+    role: "lead",
+    body: "Both, but I need to talk through tax and remittance from Italy before I go further. Can I speak to a person?",
+    at: "2026-09-02T20:22:00Z",
+  },
+  {
+    id: "msg-elena-3",
+    leadId: "lead-elena",
+    role: "joe",
+    body: "Of course. I'll pause automation and pass you to Johnny Conran for a human conversation.",
+    at: "2026-09-02T20:40:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-elena-4",
+    leadId: "lead-elena",
+    role: "lead",
+    body: "Thank you — please have an advisor call me.",
+    at: "2026-09-02T21:12:00Z",
+  },
+  {
+    id: "msg-elena-5",
+    leadId: "lead-elena",
+    role: "system",
+    body: "Human handoff requested. Joe will not auto-reply until a rep resumes the thread.",
+    at: "2026-09-02T21:13:00Z",
+  },
+
+  // Fatima — qualified, consultation booked
+  {
+    id: "msg-fatima-1",
+    leadId: "lead-fatima",
+    role: "joe",
+    body: "Hi Fatima, Joe from Joseph Mews. You registered for the UK property session — Birmingham cash purchase still the plan?",
+    at: "2026-09-05T12:15:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-fatima-2",
+    leadId: "lead-fatima",
+    role: "lead",
+    body: "Yes, cash buyer, targeting Birmingham. I'd like off-plan and completed options.",
+    at: "2026-09-05T12:41:00Z",
+  },
+  {
+    id: "msg-fatima-3",
+    leadId: "lead-fatima",
+    role: "joe",
+    body: "That's a strong fit. Johnny can run a consultation on Birmingham stock. Shall I book you in?",
+    at: "2026-09-05T13:20:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-fatima-4",
+    leadId: "lead-fatima",
+    role: "lead",
+    body: "Please book it. I'm ready to move now.",
+    at: "2026-09-05T14:05:00Z",
+  },
+  {
+    id: "msg-fatima-5",
+    leadId: "lead-fatima",
+    role: "system",
+    body: "Consultation booked with Johnny Conran.",
+    at: "2026-09-05T14:06:00Z",
+  },
+
+  // Ahmed — nurture
+  {
+    id: "msg-ahmed-1",
+    leadId: "lead-ahmed",
+    role: "joe",
+    body: "Hi Ahmed, Joe from Joseph Mews. Sharing a light update on Dubai off-plan cash purchases — no rush if you're still researching.",
+    at: "2026-09-01T15:00:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-ahmed-2",
+    leadId: "lead-ahmed",
+    role: "lead",
+    body: "Thanks. Still exploring Dubai and Abu Dhabi over the next 6–12 months. Keep me on a light cadence.",
+    at: "2026-09-01T16:20:00Z",
+  },
+
+  // Tom — opted out
+  {
+    id: "msg-tom-1",
+    leadId: "lead-tom",
+    role: "joe",
+    body: "Hi Tom, Joe from Joseph Mews. You came through an investment ad — happy to share London stock if useful.",
+    at: "2026-08-20T16:30:00Z",
+    status: "read",
+  },
+  {
+    id: "msg-tom-2",
+    leadId: "lead-tom",
+    role: "lead",
+    body: "Please stop messaging me on WhatsApp.",
+    at: "2026-08-20T17:00:00Z",
+  },
+  {
+    id: "msg-tom-3",
+    leadId: "lead-tom",
+    role: "system",
+    body: "Lead opted out. WhatsApp outreach is blocked.",
+    at: "2026-08-20T17:00:30Z",
+  },
+
+  // Chris — no response after opener
+  {
+    id: "msg-chris-1",
+    leadId: "lead-chris",
+    role: "joe",
+    body: "Hi Chris, Joe from Joseph Mews. You enquired about London stock around £500k — cash plus mortgage still the plan?",
+    at: "2026-08-28T22:00:00Z",
+    status: "delivered",
+  },
+];
+
 export function getLeadById(id: string): WhatsAppLead | undefined {
   return whatsappLeads.find((l) => l.id === id);
+}
+
+export function getMessagesForLead(leadId: string): WhatsAppThreadMessage[] {
+  return whatsappThreads
+    .filter((m) => m.leadId === leadId)
+    .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
 }
 
 export function getWebinarById(id: string): WhatsAppWebinar | undefined {

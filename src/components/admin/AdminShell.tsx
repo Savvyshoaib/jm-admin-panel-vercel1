@@ -748,10 +748,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </>
               ) : (
                 <>
-                  <span className="sm:hidden">Joseph Mews Admin</span>
-                  <span className="hidden sm:inline">
-                    Operational control for the Joseph Mews Investor Platform
-                  </span>
+              <span className="sm:hidden">Joseph Mews Admin</span>
+              <span className="hidden sm:inline">
+                Operational control for the Joseph Mews Investor Platform
+              </span>
                 </>
               )}
             </p>
